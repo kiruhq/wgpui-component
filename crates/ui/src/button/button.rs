@@ -811,9 +811,9 @@ impl ButtonVariant {
             }
             Self::Custom(colors) => {
                 if outline {
-                    colors.color.mix_oklab(cx.theme().transparent, 0.2)
+                    colors.color.opacity(0.1)
                 } else {
-                    colors.color.mix_oklab(cx.theme().transparent, 0.3)
+                    colors.hover
                 }
             }
             Self::Ghost => {
@@ -869,7 +869,13 @@ impl ButtonVariant {
             Self::Warning => cx.theme().warning.mix_oklab(cx.theme().transparent, 0.4),
             Self::Success => cx.theme().success.mix_oklab(cx.theme().transparent, 0.4),
             Self::Info => cx.theme().info.mix_oklab(cx.theme().transparent, 0.4),
-            Self::Custom(colors) => colors.color.mix_oklab(cx.theme().transparent, 0.4),
+            Self::Custom(colors) => {
+                if outline {
+                    colors.active.opacity(0.1)
+                } else {
+                    colors.active
+                }
+            }
             Self::Link => cx.theme().transparent,
             Self::Text => cx.theme().transparent,
         };
