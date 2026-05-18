@@ -1,8 +1,8 @@
 use gpui::{Context, Point, Window};
 
 use crate::input::{
-    InputState, MoveDown, MoveEnd, MoveHome, MoveLeft, MovePageDown, MovePageUp, MoveRight,
-    MoveToEnd, MoveToNextWord, MoveToPreviousWord, MoveToStart, MoveUp, RopeExt as _,
+    InputEvent, InputState, MoveDown, MoveEnd, MoveHome, MoveLeft, MovePageDown, MovePageUp,
+    MoveRight, MoveToEnd, MoveToNextWord, MoveToPreviousWord, MoveToStart, MoveUp, RopeExt as _,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -160,6 +160,7 @@ impl InputState {
         }
 
         if self.mode.is_single_line() {
+            cx.emit(InputEvent::MoveUp);
             return;
         }
 
@@ -180,6 +181,7 @@ impl InputState {
         }
 
         if self.mode.is_single_line() {
+            cx.emit(InputEvent::MoveDown);
             return;
         }
 

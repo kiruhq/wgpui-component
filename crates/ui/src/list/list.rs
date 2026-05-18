@@ -301,6 +301,8 @@ where
                     });
                 });
             }
+            InputEvent::MoveUp => self.on_action_select_prev(&SelectUp, window, cx),
+            InputEvent::MoveDown => self.on_action_select_next(&SelectDown, window, cx),
             _ => {}
         }
     }

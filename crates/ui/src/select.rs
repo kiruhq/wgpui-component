@@ -564,12 +564,15 @@ where
                                         .occlude()
                                         .mt_1p5()
                                         .bg(cx.theme().background)
+                                        .text_color(cx.theme().popover_foreground)
                                         .border_1()
                                         .border_color(cx.theme().border)
                                         .rounded(popup_radius)
                                         .shadow_md()
+                                        .refine_style(&self.state.style)
                                         .child(
                                             List::new(&self.state.list)
+                                                .refine_style(&self.state.style)
                                                 .when_some(
                                                     self.state.search_placeholder.clone(),
                                                     |this, placeholder| {

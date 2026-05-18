@@ -1335,6 +1335,7 @@ pub(super) struct PrepaintState {
     /// Size of the scrollable area by entire lines.
     scroll_size: Size<Pixels>,
     cursor_bounds: Option<Bounds<Pixels>>,
+    cursor_color: Hsla,
     cursor_scroll_offset: Point<Pixels>,
     /// row index (zero based), no wrap, same line as the cursor.
     current_row: Option<usize>,
@@ -1819,6 +1820,7 @@ impl Element for TextElement {
             scroll_size,
             line_numbers,
             cursor_bounds,
+            cursor_color: text_color,
             cursor_scroll_offset,
             current_row,
             selection_path,
@@ -2026,7 +2028,7 @@ impl Element for TextElement {
         // Paint blinking cursor
         if focused && show_cursor {
             if let Some(cursor_bounds) = prepaint.cursor_bounds_with_scroll() {
-                window.paint_quad(fill(cursor_bounds, cx.theme().caret));
+                window.paint_quad(fill(cursor_bounds, prepaint.cursor_color));
             }
         }
 

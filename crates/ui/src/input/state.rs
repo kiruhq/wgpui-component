@@ -104,6 +104,8 @@ actions!(
 pub enum InputEvent {
     Change,
     PressEnter { secondary: bool },
+    MoveUp,
+    MoveDown,
     Focus,
     Blur,
 }
