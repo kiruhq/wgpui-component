@@ -330,6 +330,7 @@ pub struct InputState {
     pub(super) selecting: bool,
     pub(super) size: Size,
     pub(super) disabled: bool,
+    pub(super) read_only: bool,
     pub(super) masked: bool,
     pub(super) clean_on_escape: bool,
     pub(super) soft_wrap: bool,
@@ -443,6 +444,7 @@ impl InputState {
             input_bounds: Bounds::default(),
             selecting: false,
             disabled: false,
+            read_only: false,
             masked: false,
             clean_on_escape: false,
             soft_wrap: true,
@@ -2340,7 +2342,7 @@ impl EntityInputHandler for InputState {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.disabled {
+        if self.disabled || self.read_only {
             return;
         }
 
@@ -2422,7 +2424,7 @@ impl EntityInputHandler for InputState {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        if self.disabled {
+        if self.disabled || self.read_only {
             return;
         }
 
