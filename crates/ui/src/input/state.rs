@@ -1506,8 +1506,9 @@ impl InputState {
         let old_offset = self.scroll_handle.offset();
         self.update_scroll_offset(Some(old_offset + delta), cx);
 
-        // Only stop propagation if the offset actually changed
-        if self.scroll_handle.offset() != old_offset {
+        // For multiline, always capture scroll to prevent outer view scrolling.
+        // For single-line, only stop propagation if the offset actually changed.
+        if self.mode.is_multi_line() || self.scroll_handle.offset() != old_offset {
             cx.stop_propagation();
         }
 
@@ -2588,7 +2589,7 @@ impl Render for InputState {
         div()
             .id("input-state")
             .flex_1()
-            .when(self.mode.is_multi_line(), |this| this.h_full())
+            .when(self.mode.is_multi_line(), |this| this.h_full().overflow_hidden())
             .flex_grow()
             .overflow_x_hidden()
             .child(TextElement::new(cx.entity().clone()).placeholder(self.placeholder.clone()))

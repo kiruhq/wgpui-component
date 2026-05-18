@@ -228,6 +228,7 @@ impl Input {
                 div()
                     .relative()
                     .flex_1()
+                    .overflow_hidden()
                     .child(input_state.clone())
                     .child(EditorScrollbar::new(input_state.clone())),
             )
@@ -369,13 +370,23 @@ impl RenderOnce for Input {
             .line_height(LINE_HEIGHT)
             .input_px(self.size)
             .input_py(self.size)
-            .input_h(self.size)
+            .when(!state.mode.is_multi_line(), |this| this.input_h(self.size))
             .input_text_size(self.size)
             .when(!self.disabled, |this| this.cursor_text())
-            .items_center()
-            .when(state.mode.is_multi_line(), |this| {
-                this.h_auto()
-                    .when_some(self.height, |this, height| this.h(height))
+            .when(state.mode.is_multi_line(), |this| this.items_start())
+            .when(!state.mode.is_multi_line(), |this| this.items_center())
+            .when(state.mode.is_multi_line(), |mut this| {
+                // Clear width: 100% from size_full() because percentage widths
+                // fail when ancestors use flex-grow without a definite width.
+                this.style().size.width = None;
+                let this = this.overflow_hidden();
+                if let Some(height) = self.height {
+                    this.h(height)
+                } else {
+                    let rows = state.mode.rows().max(2);
+                    let row_height_px = LINE_HEIGHT.to_pixels(window.rem_size());
+                    this.h(row_height_px * rows as f32)
+                }
             })
             .when(self.appearance, |this| {
                 this.bg(bg)
@@ -390,7 +401,8 @@ impl RenderOnce for Input {
                             })
                     })
             })
-            .items_center()
+            .when(state.mode.is_multi_line(), |this| this.items_start())
+            .when(!state.mode.is_multi_line(), |this| this.items_center())
             .gap(gap_x)
             .refine_style(&self.style)
             .children(prefix)
