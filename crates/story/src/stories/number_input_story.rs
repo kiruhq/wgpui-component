@@ -144,6 +144,8 @@ impl NumberInputStory {
             InputEvent::PressEnter { secondary } => {
                 println!("PressEnter secondary: {}", secondary)
             }
+            InputEvent::MoveUp => println!("MoveUp"),
+            InputEvent::MoveDown => println!("MoveDown"),
             InputEvent::Focus => println!("Focus"),
             InputEvent::Blur => println!("Blur"),
         }
