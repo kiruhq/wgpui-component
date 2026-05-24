@@ -1,13 +1,13 @@
 use std::{ops::Range, rc::Rc};
 
 use gpui::{
-    App, ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, SharedString,
+    App, ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, Role, SharedString,
     StyleRefinement, Styled, Window, prelude::FluentBuilder, px,
 };
 use rust_i18n::t;
 
 use crate::{
-    Disableable, Icon, Sizable, Size, StyledExt,
+    Disableable, Icon, Selectable, Sizable, Size, StyledExt,
     button::{Button, ButtonVariants},
     h_flex,
     icon::IconName,
@@ -128,6 +128,7 @@ impl Pagination {
             .compact()
             .with_size(self.size)
             .disabled(self.disabled || disabled)
+            .aria_label(label.clone())
             .tooltip(label.clone())
             .when(self.compact, |this| this.icon(icon.clone()))
             .when(!self.compact, |this| {
@@ -183,6 +184,8 @@ impl RenderOnce for Pagination {
 
         h_flex()
             .id(self.id.clone())
+            .role(Role::Navigation)
+            .aria_label("Pagination")
             .px_2()
             .py_2()
             .gap_1()
@@ -204,7 +207,13 @@ impl RenderOnce for Pagination {
                                 }
                             })
                             .label(page.to_string())
+                            .aria_label(if is_selected {
+                                format!("Current page, page {page}")
+                            } else {
+                                format!("Page {page}")
+                            })
                             .compact()
+                            .selected(is_selected)
                             .disabled(is_disabled)
                             .when(!is_selected, |this| {
                                 this.when_some(on_click.clone(), |this, handler| {
@@ -224,6 +233,7 @@ impl RenderOnce for Pagination {
                     .compact()
                     .disabled(self.disabled)
                     .icon(IconName::Ellipsis)
+                    .aria_label("More pages")
                     .dropdown_menu({
                         let on_click = on_click.clone();
                         move |mut menu, _, _| {

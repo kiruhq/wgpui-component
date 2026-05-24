@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashSet, rc::Rc, sync::Arc};
 
 use gpui::{
     AnyElement, App, ElementId, InteractiveElement as _, IntoElement, ParentElement, RenderOnce,
-    SharedString, StatefulInteractiveElement as _, Styled, Window, div,
+    Role, SharedString, StatefulInteractiveElement as _, Styled, Window, div,
     prelude::FluentBuilder as _, rems,
 };
 
@@ -275,7 +275,9 @@ impl RenderOnce for AccordionItem {
                                 .child(self.title),
                         )
                         .when(!self.disabled, |this| {
-                            this.hover(|this| this.bg(cx.theme().accordion_hover))
+                            this.role(Role::Button)
+                                .aria_expanded(self.open)
+                                .hover(|this| this.bg(cx.theme().accordion_hover))
                                 .child(
                                     Icon::new(if self.open {
                                         IconName::ChevronUp

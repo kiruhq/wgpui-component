@@ -1,6 +1,6 @@
 use gpui::{
     AnyElement, App, Axis, ClickEvent, InteractiveElement as _, IntoElement, ParentElement, Pixels,
-    RenderOnce, StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div,
+    RenderOnce, Role, StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div,
     prelude::FluentBuilder as _, px,
 };
 
@@ -106,6 +106,8 @@ impl RenderOnce for StepperTrigger {
 
         div()
             .id(("trigger", self.step))
+            .role(Role::Button)
+            .aria_selected(self.step == self.checked_step)
             .when(self.layout.is_horizontal(), |this| this.v_flex().gap_1())
             .when(self.layout.is_vertical(), |this| this.h_flex().gap_2())
             .items_start()

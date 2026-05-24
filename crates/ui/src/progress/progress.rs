@@ -1,8 +1,8 @@
 use crate::{ActiveTheme, Sizable, Size, StyledExt};
 use gpui::{
     Animation, AnimationExt as _, App, ElementId, Hsla, InteractiveElement as _, IntoElement,
-    ParentElement, RenderOnce, StyleRefinement, Styled, Window, div, ease_in_out,
-    prelude::FluentBuilder, px, relative,
+    ParentElement, RenderOnce, Role, SharedString, StyleRefinement, Styled, Window, div,
+    ease_in_out, prelude::FluentBuilder, px, relative,
 };
 use instant::Duration;
 
@@ -17,6 +17,7 @@ pub struct Progress {
     value: f32,
     size: Size,
     loading: bool,
+    aria_label: Option<SharedString>,
 }
 
 impl Progress {
@@ -29,6 +30,7 @@ impl Progress {
             style: StyleRefinement::default(),
             size: Size::default(),
             loading: false,
+            aria_label: None,
         }
     }
 
@@ -52,6 +54,12 @@ impl Progress {
     /// The value should be between 0.0 and 100.0.
     pub fn value(mut self, value: f32) -> Self {
         self.value = value.clamp(0., 100.);
+        self
+    }
+
+    /// Set the accessible label for the progress bar.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 }
@@ -93,6 +101,11 @@ impl RenderOnce for Progress {
 
         div()
             .id(self.id)
+            .role(Role::ProgressIndicator)
+            .aria_min_numeric_value(0.)
+            .aria_max_numeric_value(100.)
+            .when(!loading, |this| this.aria_numeric_value(value as f64))
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .w_full()
             .relative()
             .h(height)

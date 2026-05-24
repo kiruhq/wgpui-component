@@ -3,8 +3,8 @@ use crate::{Disableable, Icon, IconName, Sizable, Size, StyledExt, h_flex};
 use std::rc::Rc;
 
 use gpui::{
-    App, ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, StyleRefinement,
-    Styled, Window, div, prelude::FluentBuilder as _,
+    App, ElementId, InteractiveElement, IntoElement, ParentElement, RenderOnce, Role, SharedString,
+    StyleRefinement, Styled, Toggled, Window, div, prelude::FluentBuilder as _,
 };
 use gpui::{ClickEvent, Hsla, StatefulInteractiveElement};
 
@@ -18,6 +18,7 @@ pub struct Rating {
     value: usize,
     max: usize,
     color: Option<Hsla>,
+    aria_label: Option<SharedString>,
     on_click: Option<Rc<dyn Fn(&usize, &mut Window, &mut App) + 'static>>,
 }
 
@@ -32,6 +33,7 @@ impl Rating {
             value: 0,
             max: 5,
             color: None,
+            aria_label: None,
             on_click: None,
         }
     }
@@ -69,6 +71,12 @@ impl Rating {
         if self.value > self.max {
             self.value = self.max;
         }
+        self
+    }
+
+    /// Set the accessible label for the rating group.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -118,6 +126,7 @@ impl RenderOnce for Rating {
         let max = self.max;
         let default_value = self.value;
         let active_color = self.color.unwrap_or(cx.theme().yellow);
+        let aria_label = self.aria_label.unwrap_or_else(|| "Rating".into());
         let on_click = self.on_click.clone();
 
         let state = window.use_keyed_state(id.clone(), cx, |_, _| RaingState {
@@ -137,6 +146,8 @@ impl RenderOnce for Rating {
 
         h_flex()
             .id(id)
+            .role(Role::RadioGroup)
+            .aria_label(aria_label)
             .flex_nowrap()
             .refine_style(&self.style)
             .on_hover(window.listener_for(&state, move |state, hovered, _, cx| {
@@ -149,10 +160,15 @@ impl RenderOnce for Rating {
                 for ix in 1..=max {
                     let filled = ix <= value;
                     let hovered = state.read(cx).hovered_value >= ix;
+                    let selected = ix == value;
 
                     this = this.child(
                         div()
                             .id(ix)
+                            .role(Role::RadioButton)
+                            .aria_label(format!("{ix} of {max}"))
+                            .aria_selected(selected)
+                            .aria_toggled(Toggled::from(selected))
                             .p_0p5()
                             .flex_none()
                             .flex_shrink_0()

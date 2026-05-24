@@ -2,9 +2,10 @@ use std::{cell::Cell, rc::Rc, time::Duration};
 
 use gpui::{
     Action, AnyElement, AnyView, App, AppContext, Bounds, Context, Display, Element, ElementId,
-    GlobalElementId, Half, InspectorElementId, IntoElement, LayoutId, ParentElement, Pixels, Point,
-    Position, Render, SharedString, Size, StatefulInteractiveElement, Style, StyleRefinement,
-    Styled, Task, Window, deferred, div, point, prelude::FluentBuilder, px,
+    GlobalElementId, Half, InspectorElementId, InteractiveElement as _, IntoElement, LayoutId,
+    ParentElement, Pixels, Point, Position, Render, Role, SharedString, Size,
+    StatefulInteractiveElement, Style, StyleRefinement, Styled, Task, Window, deferred, div, point,
+    prelude::FluentBuilder, px,
 };
 
 use crate::{
@@ -106,6 +107,8 @@ impl Render for Tooltip {
         div().child(
             // Wrap in a child, to ensure the left margin is applied to the tooltip
             h_flex()
+                .id("tooltip")
+                .role(Role::Tooltip)
                 .font_family(cx.theme().font_family.clone())
                 .m_3()
                 .bg(cx.theme().popover)

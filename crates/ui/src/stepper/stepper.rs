@@ -1,8 +1,9 @@
 use std::rc::Rc;
 
 use gpui::{
-    App, Axis, ElementId, InteractiveElement as _, IntoElement, ParentElement, RenderOnce,
-    StyleRefinement, Styled, Window, div, prelude::FluentBuilder as _,
+    App, Axis, ElementId, InteractiveElement as _, IntoElement, Orientation, ParentElement,
+    RenderOnce, Role, SharedString, StyleRefinement, Styled, Window, div,
+    prelude::FluentBuilder as _,
 };
 
 use crate::{AxisExt, Sizable, Size, StyledExt as _, stepper::StepperItem};
@@ -18,6 +19,7 @@ pub struct Stepper {
     disabled: bool,
     size: Size,
     text_center: bool,
+    aria_label: Option<SharedString>,
     on_click: Rc<dyn Fn(&usize, &mut Window, &mut App) + 'static>,
 }
 
@@ -35,6 +37,7 @@ impl Stepper {
             disabled: false,
             size: Size::default(),
             text_center: false,
+            aria_label: None,
             on_click: Rc::new(|_, _, _| {}),
         }
     }
@@ -60,6 +63,12 @@ impl Stepper {
     /// Sets the selected index of the stepper, default is 0.
     pub fn selected_index(mut self, index: usize) -> Self {
         self.step = index;
+        self
+    }
+
+    /// Set the accessible label for the stepper.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -109,8 +118,17 @@ impl Styled for Stepper {
 impl RenderOnce for Stepper {
     fn render(self, _: &mut Window, _: &mut App) -> impl IntoElement {
         let total_items = self.items.len();
+        let aria_label = self.aria_label.unwrap_or_else(|| "Steps".into());
+
         div()
             .id(self.id)
+            .role(Role::Group)
+            .aria_label(aria_label)
+            .aria_orientation(if self.layout.is_horizontal() {
+                Orientation::Horizontal
+            } else {
+                Orientation::Vertical
+            })
             .w_full()
             .when(self.layout.is_horizontal(), |this| this.h_flex())
             .when(self.layout.is_vertical(), |this| this.v_flex())

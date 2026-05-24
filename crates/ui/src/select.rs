@@ -1,8 +1,8 @@
 use gpui::{
     AnyElement, App, ClickEvent, Context, DismissEvent, Edges, ElementId, Entity, EventEmitter,
     FocusHandle, Focusable, InteractiveElement, IntoElement, KeyBinding, Length, ParentElement,
-    Render, RenderOnce, SharedString, StatefulInteractiveElement, StyleRefinement, Styled, Window,
-    anchored, deferred, div, prelude::FluentBuilder, px, rems,
+    Render, RenderOnce, Role, SharedString, StatefulInteractiveElement, StyleRefinement, Styled,
+    Window, anchored, deferred, div, prelude::FluentBuilder, px, rems,
 };
 use rust_i18n::t;
 
@@ -65,6 +65,7 @@ struct SelectOptions {
     icon: Option<Icon>,
     cleanable: bool,
     placeholder: Option<SharedString>,
+    aria_label: Option<SharedString>,
     title_prefix: Option<SharedString>,
     search_placeholder: Option<SharedString>,
     menu_width: Length,
@@ -81,6 +82,7 @@ impl Default for SelectOptions {
             icon: None,
             cleanable: false,
             placeholder: None,
+            aria_label: None,
             title_prefix: None,
             menu_width: Length::Auto,
             menu_max_h: rems(20.).into(),
@@ -103,6 +105,7 @@ where
     // Select-specific fields
     searchable: bool,
     icon: Option<Icon>,
+    aria_label: Option<SharedString>,
     title_prefix: Option<SharedString>,
 }
 
@@ -245,6 +248,7 @@ where
             state,
             searchable: false,
             icon: None,
+            aria_label: None,
             title_prefix: None,
         }
     }
@@ -467,6 +471,10 @@ where
         let allow_open = !(self.state.open || self.state.disabled);
         let outline_visible = self.state.open || (is_focused && !self.state.disabled);
         let popup_radius = cx.theme().radius.min(px(8.));
+        let aria_label = self
+            .aria_label
+            .clone()
+            .or_else(|| self.state.placeholder.clone());
 
         let (bg, fg) = input_style(self.state.disabled, cx);
 
@@ -481,6 +489,9 @@ where
             .child(
                 div()
                     .id("input")
+                    .role(Role::ComboBox)
+                    .aria_expanded(self.state.open)
+                    .when_some(aria_label, |this, label| this.aria_label(label))
                     .relative()
                     .flex()
                     .items_center()
@@ -627,6 +638,12 @@ where
         self
     }
 
+    /// Set the accessible label for the select.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.options.aria_label = Some(label.into());
+        self
+    }
+
     /// Override the trailing icon, replacing the default chevron.
     pub fn icon(mut self, icon: impl Into<Icon>) -> Self {
         self.options.icon = Some(icon.into());
@@ -740,6 +757,7 @@ where
             this.state.size = opts.size;
             this.state.cleanable = opts.cleanable;
             this.state.placeholder = opts.placeholder;
+            this.aria_label = opts.aria_label;
             this.state.search_placeholder = opts.search_placeholder;
             this.state.menu_width = opts.menu_width;
             this.state.menu_max_h = opts.menu_max_h;
