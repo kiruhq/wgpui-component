@@ -1,7 +1,7 @@
 use gpui::Corners;
 use gpui::InteractiveElement;
 use gpui::ParentElement;
-use gpui::{App, Axis, Edges, ElementId, IntoElement, Window};
+use gpui::{App, Axis, Edges, ElementId, IntoElement, Orientation, Role, SharedString, Window};
 use gpui::{
     RenderOnce, StatefulInteractiveElement as _, StyleRefinement, Styled, div,
     prelude::FluentBuilder as _,
@@ -22,6 +22,7 @@ pub struct ButtonGroup {
     pub(super) multiple: bool,
     pub(super) disabled: bool,
     pub(super) layout: Axis,
+    aria_label: Option<SharedString>,
 
     // The button props
     pub(super) compact: bool,
@@ -53,6 +54,7 @@ impl ButtonGroup {
             multiple: false,
             disabled: false,
             layout: Axis::Horizontal,
+            aria_label: None,
             on_click: None,
         }
     }
@@ -78,6 +80,12 @@ impl ButtonGroup {
     /// Set the layout of the button group. Default is `Axis::Horizontal`.
     pub fn layout(mut self, layout: Axis) -> Self {
         self.layout = layout;
+        self
+    }
+
+    /// Set the accessible label for the button group.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -165,6 +173,13 @@ impl RenderOnce for ButtonGroup {
 
         div()
             .id(self.id)
+            .role(Role::Group)
+            .aria_orientation(if vertical {
+                Orientation::Vertical
+            } else {
+                Orientation::Horizontal
+            })
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .flex()
             .when(vertical, |this| this.flex_col().justify_center())
             .when(!vertical, |this| this.items_center())

@@ -2,8 +2,8 @@ use std::{cell::Cell, rc::Rc};
 
 use gpui::{
     AnyElement, App, Corners, Edges, ElementId, InteractiveElement, IntoElement, ParentElement,
-    RenderOnce, SharedString, StatefulInteractiveElement, StyleRefinement, Styled, Window, div,
-    prelude::FluentBuilder as _,
+    RenderOnce, Role, SharedString, StatefulInteractiveElement, StyleRefinement, Styled, Toggled,
+    Window, div, prelude::FluentBuilder as _,
 };
 use smallvec::{SmallVec, smallvec};
 
@@ -41,6 +41,7 @@ pub struct Toggle {
     disabled: bool,
     border_corners: Corners<bool>,
     border_edges: Edges<bool>,
+    aria_label: Option<SharedString>,
     children: SmallVec<[AnyElement; 1]>,
     on_click: Option<Box<dyn Fn(&bool, &mut Window, &mut App) + 'static>>,
     tooltip: ComponentTooltip,
@@ -56,6 +57,7 @@ impl Toggle {
             size: Size::default(),
             variant: ToggleVariant::default(),
             disabled: false,
+            aria_label: None,
             border_corners: Corners {
                 top_left: true,
                 top_right: true,
@@ -78,7 +80,16 @@ impl Toggle {
     /// Add a label to the toggle.
     pub fn label(mut self, label: impl Into<SharedString>) -> Self {
         let label: SharedString = label.into();
+        if self.aria_label.is_none() {
+            self.aria_label = Some(label.clone());
+        }
         self.children.push(label.into_any_element());
+        self
+    }
+
+    /// Set the accessible label for the toggle.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -156,6 +167,9 @@ impl RenderOnce for Toggle {
 
         div()
             .id(self.id)
+            .role(Role::Button)
+            .aria_toggled(Toggled::from(checked))
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .flex()
             .flex_row()
             .items_center()
@@ -217,6 +231,7 @@ pub struct ToggleGroup {
     variant: ToggleVariant,
     disabled: bool,
     segmented: bool,
+    aria_label: Option<SharedString>,
     items: Vec<Toggle>,
     on_click: Option<Rc<dyn Fn(&Vec<bool>, &mut Window, &mut App) + 'static>>,
 }
@@ -231,6 +246,7 @@ impl ToggleGroup {
             variant: ToggleVariant::default(),
             disabled: false,
             segmented: false,
+            aria_label: None,
             items: Vec::new(),
             on_click: None,
         }
@@ -265,6 +281,12 @@ impl ToggleGroup {
     /// gap and joins adjacent item borders into a single segmented outline.
     pub fn segmented(mut self) -> Self {
         self.segmented = true;
+        self
+    }
+
+    /// Set the accessible label for the toggle group.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 }
@@ -309,6 +331,8 @@ impl RenderOnce for ToggleGroup {
 
         h_flex()
             .id(self.id)
+            .role(Role::Group)
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .when(!self.segmented, |this| this.gap_2())
             .refine_style(&self.style)
             .children(self.items.into_iter().enumerate().map({

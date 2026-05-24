@@ -3,6 +3,95 @@
 version = 4
 
 [[package]]
+name = "accesskit"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5351dcebb14b579ccab05f288596b2ae097005be7ee50a7c3d4ca9d0d5a66f6a"
+dependencies = [
+ "uuid",
+]
+
+[[package]]
+name = "accesskit_atspi_common"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e8c61bee90b42a772d39d06a740207dc71a4e780004ace1db8d99fb1baaa954"
+dependencies = [
+ "accesskit",
+ "accesskit_consumer 0.36.0",
+ "atspi-common",
+ "phf 0.13.1",
+ "serde",
+ "zvariant",
+]
+
+[[package]]
+name = "accesskit_consumer"
+version = "0.35.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "53cf47daed85312e763fbf85ceca136e0d7abc68e0a7e12abe11f48172bc3b10"
+dependencies = [
+ "accesskit",
+ "hashbrown 0.16.1",
+]
+
+[[package]]
+name = "accesskit_consumer"
+version = "0.36.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25e0d7e25d06f4dc21d1774d67146e9e80d6789216cbd4d1e88185b0095dba60"
+dependencies = [
+ "accesskit",
+ "hashbrown 0.16.1",
+]
+
+[[package]]
+name = "accesskit_macos"
+version = "0.26.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c5c87e8d94f2ec10cce590aadff24c76f576dab5502d45d0aed9fc3065d4451"
+dependencies = [
+ "accesskit",
+ "accesskit_consumer 0.36.0",
+ "hashbrown 0.16.1",
+ "objc2 0.5.2",
+ "objc2-app-kit 0.2.2",
+ "objc2-foundation 0.2.2",
+]
+
+[[package]]
+name = "accesskit_unix"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b016ca8db0ea0ea2ceff29a9d6240391492d960716aa471967c00e8cc8cb197c"
+dependencies = [
+ "accesskit",
+ "accesskit_atspi_common",
+ "async-channel 2.5.0",
+ "async-executor",
+ "async-task",
+ "atspi",
+ "futures-lite 2.6.1",
+ "futures-util",
+ "serde",
+ "zbus",
+]
+
+[[package]]
+name = "accesskit_windows"
+version = "0.32.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eff7009f1a532e917d66970a1e80c965140c6cfbbabbdde3d64e5431e6c78e21"
+dependencies = [
+ "accesskit",
+ "accesskit_consumer 0.35.0",
+ "hashbrown 0.16.1",
+ "static_assertions",
+ "windows 0.62.2",
+ "windows-core 0.62.2",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -482,6 +571,43 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 
 [[package]]
+name = "atspi"
+version = "0.29.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c77886257be21c9cd89a4ae7e64860c6f0eefca799bb79127913052bd0eefb3d"
+dependencies = [
+ "atspi-common",
+ "atspi-proxies",
+]
+
+[[package]]
+name = "atspi-common"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "20c5617155740c98003016429ad13fe43ce7a77b007479350a9f8bf95a29f63d"
+dependencies = [
+ "enumflags2",
+ "serde",
+ "static_assertions",
+ "zbus",
+ "zbus-lockstep",
+ "zbus-lockstep-macros",
+ "zbus_names",
+ "zvariant",
+]
+
+[[package]]
+name = "atspi-proxies"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2230e48787ed3eb4088996eab66a32ca20c0b67bbd4fd6cdfe79f04f1f04c9fc"
+dependencies = [
+ "atspi-common",
+ "serde",
+ "zbus",
+]
+
+[[package]]
 name = "auto_impl"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -752,11 +878,20 @@ dependencies = [
 
 [[package]]
 name = "block2"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c132eebf10f5cad5289222520a4a058514204aed6d791f1cf4fe8088b82d15f"
+dependencies = [
+ "objc2 0.5.2",
+]
+
+[[package]]
+name = "block2"
 version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdeb9d870516001442e364c5220d3574d2da8dc765554b4a617230d33fa58ef5"
 dependencies = [
- "objc2",
+ "objc2 0.6.4",
 ]
 
 [[package]]
@@ -1141,7 +1276,7 @@ dependencies = [
 [[package]]
 name = "collections"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "indexmap",
  "rustc-hash 2.1.2",
@@ -1719,7 +1854,7 @@ dependencies = [
 [[package]]
 name = "derive_refineable"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1794,9 +1929,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1e0e367e4e7da84520dedcac1901e4da967309406d1e51017ae1abfb97adbd38"
 dependencies = [
  "bitflags 2.11.1",
- "block2",
+ "block2 0.6.2",
  "libc",
- "objc2",
+ "objc2 0.6.4",
 ]
 
 [[package]]
@@ -2897,8 +3032,9 @@ dependencies = [
 [[package]]
 name = "gpui"
 version = "0.2.2"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
+ "accesskit",
  "anyhow",
  "async-channel 2.5.0",
  "async-task",
@@ -3135,8 +3271,10 @@ dependencies = [
 [[package]]
 name = "gpui_linux"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
+ "accesskit",
+ "accesskit_unix",
  "anyhow",
  "as-raw-xcb-connection",
  "ashpd",
@@ -3184,8 +3322,10 @@ dependencies = [
 [[package]]
 name = "gpui_macos"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
+ "accesskit",
+ "accesskit_macos",
  "anyhow",
  "async-task",
  "block",
@@ -3209,7 +3349,7 @@ dependencies = [
  "mach2",
  "media",
  "objc",
- "objc2-app-kit",
+ "objc2-app-kit 0.3.2",
  "parking_lot",
  "pathfinder_geometry",
  "raw-window-handle",
@@ -3224,7 +3364,7 @@ dependencies = [
 [[package]]
 name = "gpui_macros"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -3235,7 +3375,7 @@ dependencies = [
 [[package]]
 name = "gpui_platform"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "console_error_panic_hook",
  "gpui",
@@ -3248,7 +3388,7 @@ dependencies = [
 [[package]]
 name = "gpui_shared_string"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "schemars",
  "serde",
@@ -3258,7 +3398,7 @@ dependencies = [
 [[package]]
 name = "gpui_util"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "anyhow",
  "log",
@@ -3267,7 +3407,7 @@ dependencies = [
 [[package]]
 name = "gpui_web"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "anyhow",
  "console_error_panic_hook",
@@ -3291,7 +3431,7 @@ dependencies = [
 [[package]]
 name = "gpui_wgpu"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "anyhow",
  "bytemuck",
@@ -3320,8 +3460,10 @@ dependencies = [
 [[package]]
 name = "gpui_windows"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
+ "accesskit",
+ "accesskit_windows",
  "anyhow",
  "collections",
  "etagere",
@@ -3634,7 +3776,7 @@ dependencies = [
 [[package]]
 name = "http_client"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "anyhow",
  "async-compression",
@@ -3659,7 +3801,7 @@ dependencies = [
 [[package]]
 name = "http_client_tls"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "rustls",
  "rustls-platform-verifier",
@@ -4270,7 +4412,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9cfe72bff8acf9af0d6d276569be5b9cb3f313f9882761ada5a50d3044214d4"
 dependencies = [
  "base64",
- "block2",
+ "block2 0.6.2",
  "cookie",
  "crossbeam-channel",
  "dirs",
@@ -4286,10 +4428,10 @@ dependencies = [
  "kuchikiki",
  "libc",
  "ndk",
- "objc2",
- "objc2-app-kit",
+ "objc2 0.6.4",
+ "objc2-app-kit 0.3.2",
  "objc2-core-foundation",
- "objc2-foundation",
+ "objc2-foundation 0.3.2",
  "objc2-ui-kit",
  "objc2-web-kit",
  "once_cell",
@@ -4660,7 +4802,7 @@ dependencies = [
 [[package]]
 name = "media"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "anyhow",
  "bindgen",
@@ -5122,6 +5264,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "objc-sys"
+version = "0.3.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cdb91bdd390c7ce1a8607f35f3ca7151b65afc0ff5ff3b34fa350f7d7c7e4310"
+
+[[package]]
+name = "objc2"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46a785d4eeff09c14c487497c162e92766fbb3e4059a71840cecc03d9a50b804"
+dependencies = [
+ "objc-sys",
+ "objc2-encode",
+]
+
+[[package]]
 name = "objc2"
 version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5133,14 +5291,42 @@ dependencies = [
 
 [[package]]
 name = "objc2-app-kit"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e4e89ad9e3d7d297152b17d39ed92cd50ca8063a89a9fa569046d41568891eff"
+dependencies = [
+ "bitflags 2.11.1",
+ "block2 0.5.1",
+ "libc",
+ "objc2 0.5.2",
+ "objc2-core-data",
+ "objc2-core-image",
+ "objc2-foundation 0.2.2",
+ "objc2-quartz-core 0.2.2",
+]
+
+[[package]]
+name = "objc2-app-kit"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d49e936b501e5c5bf01fda3a9452ff86dc3ea98ad5f283e1455153142d97518c"
 dependencies = [
  "bitflags 2.11.1",
- "objc2",
+ "objc2 0.6.4",
  "objc2-core-foundation",
- "objc2-foundation",
+ "objc2-foundation 0.3.2",
+]
+
+[[package]]
+name = "objc2-core-data"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "617fbf49e071c178c0b24c080767db52958f716d9eabdf0890523aeae54773ef"
+dependencies = [
+ "bitflags 2.11.1",
+ "block2 0.5.1",
+ "objc2 0.5.2",
+ "objc2-foundation 0.2.2",
 ]
 
 [[package]]
@@ -5151,7 +5337,19 @@ checksum = "2a180dd8642fa45cdb7dd721cd4c11b1cadd4929ce112ebd8b9f5803cc79d536"
 dependencies = [
  "bitflags 2.11.1",
  "dispatch2",
- "objc2",
+ "objc2 0.6.4",
+]
+
+[[package]]
+name = "objc2-core-image"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "55260963a527c99f1819c4f8e3b47fe04f9650694ef348ffd2227e8196d34c80"
+dependencies = [
+ "block2 0.5.1",
+ "objc2 0.5.2",
+ "objc2-foundation 0.2.2",
+ "objc2-metal 0.2.2",
 ]
 
 [[package]]
@@ -5171,12 +5369,24 @@ dependencies = [
 
 [[package]]
 name = "objc2-foundation"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ee638a5da3799329310ad4cfa62fbf045d5f56e3ef5ba4149e7452dcf89d5a8"
+dependencies = [
+ "bitflags 2.11.1",
+ "block2 0.5.1",
+ "libc",
+ "objc2 0.5.2",
+]
+
+[[package]]
+name = "objc2-foundation"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3e0adef53c21f888deb4fa59fc59f7eb17404926ee8a6f59f5df0fd7f9f3272"
 dependencies = [
  "bitflags 2.11.1",
- "objc2",
+ "objc2 0.6.4",
  "objc2-core-foundation",
 ]
 
@@ -5192,14 +5402,39 @@ dependencies = [
 
 [[package]]
 name = "objc2-metal"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd0cba1276f6023976a406a14ffa85e1fdd19df6b0f737b063b95f6c8c7aadd6"
+dependencies = [
+ "bitflags 2.11.1",
+ "block2 0.5.1",
+ "objc2 0.5.2",
+ "objc2-foundation 0.2.2",
+]
+
+[[package]]
+name = "objc2-metal"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a0125f776a10d00af4152d74616409f0d4a2053a6f57fa5b7d6aa2854ac04794"
 dependencies = [
  "bitflags 2.11.1",
- "block2",
- "objc2",
- "objc2-foundation",
+ "block2 0.6.2",
+ "objc2 0.6.4",
+ "objc2-foundation 0.3.2",
+]
+
+[[package]]
+name = "objc2-quartz-core"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e42bee7bff906b14b167da2bac5efe6b6a07e6f7c0a21a7308d40c960242dc7a"
+dependencies = [
+ "bitflags 2.11.1",
+ "block2 0.5.1",
+ "objc2 0.5.2",
+ "objc2-foundation 0.2.2",
+ "objc2-metal 0.2.2",
 ]
 
 [[package]]
@@ -5209,10 +5444,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96c1358452b371bf9f104e21ec536d37a650eb10f7ee379fff67d2e08d537f1f"
 dependencies = [
  "bitflags 2.11.1",
- "objc2",
+ "objc2 0.6.4",
  "objc2-core-foundation",
- "objc2-foundation",
- "objc2-metal",
+ "objc2-foundation 0.3.2",
+ "objc2-metal 0.3.2",
 ]
 
 [[package]]
@@ -5222,9 +5457,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d87d638e33c06f577498cbcc50491496a3ed4246998a7fbba7ccb98b1e7eab22"
 dependencies = [
  "bitflags 2.11.1",
- "objc2",
+ "objc2 0.6.4",
  "objc2-core-foundation",
- "objc2-foundation",
+ "objc2-foundation 0.3.2",
 ]
 
 [[package]]
@@ -5234,11 +5469,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2e5aaab980c433cf470df9d7af96a7b46a9d892d521a2cbbb2f8a4c16751e7f"
 dependencies = [
  "bitflags 2.11.1",
- "block2",
- "objc2",
- "objc2-app-kit",
+ "block2 0.6.2",
+ "objc2 0.6.4",
+ "objc2-app-kit 0.3.2",
  "objc2-core-foundation",
- "objc2-foundation",
+ "objc2-foundation 0.3.2",
 ]
 
 [[package]]
@@ -5467,7 +5702,7 @@ checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 [[package]]
 name = "perf"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "collections",
  "serde",
@@ -5548,6 +5783,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "phf"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c1562dc717473dbaa4c1f85a36410e03c047b2e7df7f45ee938fbef64ae7fadf"
+dependencies = [
+ "phf_macros 0.13.1",
+ "phf_shared 0.13.1",
+ "serde",
+]
+
+[[package]]
 name = "phf_codegen"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5598,6 +5844,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "phf_generator"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "135ace3a761e564ec88c03a77317a7c6b80bb7f7135ef2544dbe054243b89737"
+dependencies = [
+ "fastrand 2.4.1",
+ "phf_shared 0.13.1",
+]
+
+[[package]]
 name = "phf_macros"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5619,6 +5875,19 @@ checksum = "f84ac04429c13a7ff43785d75ad27569f2951ce0ffd30a3321230db2fc727216"
 dependencies = [
  "phf_generator 0.11.3",
  "phf_shared 0.11.3",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
+name = "phf_macros"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "812f032b54b1e759ccd5f8b6677695d5268c588701effba24601f6932f8269ef"
+dependencies = [
+ "phf_generator 0.13.1",
+ "phf_shared 0.13.1",
  "proc-macro2",
  "quote",
  "syn 2.0.117",
@@ -5647,6 +5916,15 @@ name = "phf_shared"
 version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "67eabc2ef2a60eb7faa00097bd1ffdb5bd28e62bf39990626a582201b7a754e5"
+dependencies = [
+ "siphasher 1.0.2",
+]
+
+[[package]]
+name = "phf_shared"
+version = "0.13.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e57fef6bc5981e38c2ce2d63bfa546861309f875b8a75f092d1d54ae2d64f266"
 dependencies = [
  "siphasher 1.0.2",
 ]
@@ -6047,6 +6325,16 @@ dependencies = [
 
 [[package]]
 name = "quick-xml"
+version = "0.38.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b66c2058c55a409d601666cffe35f04333cf1013010882cec174a7467cd4e21c"
+dependencies = [
+ "memchr",
+ "serde",
+]
+
+[[package]]
+name = "quick-xml"
 version = "0.39.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "958f21e8e7ceb5a1aa7fa87fab28e7c75976e0bfe7e23ff069e0a260f894067d"
@@ -6329,10 +6617,10 @@ version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40d213455a5f1dc59214213c7330e074ddf8114c9a42411eb890c767357ce135"
 dependencies = [
- "objc2",
+ "objc2 0.6.4",
  "objc2-core-foundation",
- "objc2-foundation",
- "objc2-quartz-core",
+ "objc2-foundation 0.3.2",
+ "objc2-quartz-core 0.3.2",
 ]
 
 [[package]]
@@ -6427,7 +6715,7 @@ dependencies = [
 [[package]]
 name = "refineable"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "derive_refineable",
 ]
@@ -6479,7 +6767,7 @@ checksum = "19b30a45b0cd0bcca8037f3d0dc3421eaf95327a17cad11964fb8179b4fc4832"
 [[package]]
 name = "reqwest_client"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "anyhow",
  "bytes",
@@ -6884,7 +7172,7 @@ dependencies = [
 [[package]]
 name = "scheduler"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "async-task",
  "backtrace",
@@ -7518,7 +7806,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "sum_tree"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "heapless",
  "log",
@@ -8937,7 +9225,7 @@ checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
 [[package]]
 name = "util"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "anyhow",
  "async-fs",
@@ -8976,7 +9264,7 @@ dependencies = [
 [[package]]
 name = "util_macros"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "perf",
  "quote",
@@ -9591,7 +9879,7 @@ dependencies = [
  "ash",
  "bit-set 0.9.1",
  "bitflags 2.11.1",
- "block2",
+ "block2 0.6.2",
  "bytemuck",
  "cfg-if",
  "cfg_aliases",
@@ -9607,11 +9895,11 @@ dependencies = [
  "log",
  "naga",
  "ndk-sys",
- "objc2",
+ "objc2 0.6.4",
  "objc2-core-foundation",
- "objc2-foundation",
- "objc2-metal",
- "objc2-quartz-core",
+ "objc2-foundation 0.3.2",
+ "objc2-metal 0.3.2",
+ "objc2-quartz-core 0.3.2",
  "once_cell",
  "ordered-float",
  "parking_lot",
@@ -10624,6 +10912,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "zbus-lockstep"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6998de05217a084b7578728a9443d04ea4cd80f2a0839b8d78770b76ccd45863"
+dependencies = [
+ "zbus_xml",
+ "zvariant",
+]
+
+[[package]]
+name = "zbus-lockstep-macros"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10da05367f3a7b7553c8cdf8fa91aee6b64afebe32b51c95177957efc47ca3a0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+ "zbus-lockstep",
+ "zbus_xml",
+ "zvariant",
+]
+
+[[package]]
 name = "zbus_macros"
 version = "5.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10646,6 +10958,18 @@ checksum = "ffd8af6d5b78619bab301ff3c560a5bd22426150253db278f164d6cf3b72c50f"
 dependencies = [
  "serde",
  "winnow 0.7.15",
+ "zvariant",
+]
+
+[[package]]
+name = "zbus_xml"
+version = "5.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "441a0064125265655bccc3a6af6bef56814d9277ac83fce48b1cd7e160b80eac"
+dependencies = [
+ "quick-xml 0.38.4",
+ "serde",
+ "zbus_names",
  "zvariant",
 ]
 
@@ -10859,7 +11183,7 @@ dependencies = [
 [[package]]
 name = "zlog"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "anyhow",
  "chrono",
@@ -10876,7 +11200,7 @@ checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
 [[package]]
 name = "ztracing"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 dependencies = [
  "tracing",
  "tracing-subscriber",
@@ -10887,7 +11211,7 @@ dependencies = [
 [[package]]
 name = "ztracing_macro"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=41b45d11021deea0d011aa1c6e2fa06c82fe8487#41b45d11021deea0d011aa1c6e2fa06c82fe8487"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
 
 [[package]]
 name = "zune-core"

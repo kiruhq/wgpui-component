@@ -1,7 +1,7 @@
 use gpui::{
     AnyElement, App, Bounds, ClickEvent, Context, DismissEvent, Edges, ElementId, Entity,
     EventEmitter, FocusHandle, Focusable, Hsla, InteractiveElement, IntoElement, KeyBinding,
-    Length, MouseDownEvent, ParentElement, Pixels, Render, RenderOnce, SharedString,
+    Length, MouseDownEvent, ParentElement, Pixels, Render, RenderOnce, Role, SharedString,
     StatefulInteractiveElement, StyleRefinement, Styled, Window, anchored, deferred, div,
     prelude::FluentBuilder, px, rems,
 };
@@ -67,6 +67,7 @@ struct ComboboxOptions {
     menu_max_h: Length,
     disabled: bool,
     appearance: bool,
+    aria_label: Option<SharedString>,
     trigger_icon: Option<Icon>,
     check_icon: Option<Icon>,
 }
@@ -83,6 +84,7 @@ impl Default for ComboboxOptions {
             menu_max_h: rems(20.).into(),
             disabled: false,
             appearance: true,
+            aria_label: None,
             trigger_icon: None,
             check_icon: None,
         }
@@ -103,6 +105,7 @@ where
     searchable: bool,
     trigger_icon: Option<Icon>,
     check_icon: Option<Icon>,
+    aria_label: Option<SharedString>,
     render_trigger:
         Option<Box<dyn Fn(&ComboboxTriggerCtx<D>, &mut Window, &mut App) -> AnyElement + 'static>>,
     footer: Option<Box<dyn Fn(&mut Window, &mut App) -> AnyElement + 'static>>,
@@ -269,6 +272,7 @@ where
             searchable: false,
             trigger_icon: None,
             check_icon: None,
+            aria_label: None,
             render_trigger: None,
             footer: None,
         }
@@ -633,6 +637,10 @@ where
         };
 
         let footer_el = self.footer.as_ref().map(|f| f(window, cx));
+        let aria_label = self
+            .aria_label
+            .clone()
+            .or_else(|| self.state.placeholder.clone());
 
         let dismiss_handler: Box<dyn Fn(&MouseDownEvent, &mut Window, &mut App) + 'static> =
             Box::new(cx.listener(|this, _, window, cx| this.escape(&Cancel, window, cx)));
@@ -649,6 +657,8 @@ where
                 fg,
                 outline_visible,
                 allow_open,
+                open,
+                aria_label,
                 trigger_body,
                 trailing,
                 toggle_handler,
@@ -755,6 +765,12 @@ where
         self
     }
 
+    /// Set the accessible label for the combobox.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.options.aria_label = Some(label.into());
+        self
+    }
+
     /// Override the trigger chevron icon.
     pub fn icon(mut self, icon: impl Into<Icon>) -> Self {
         self.options.trigger_icon = Some(icon.into());
@@ -790,7 +806,9 @@ where
         mut self,
         builder: impl Fn(&mut Window, &App) -> E + 'static,
     ) -> Self {
-        self.empty = Some(Box::new(move |window, cx| builder(window, cx).into_any_element()));
+        self.empty = Some(Box::new(move |window, cx| {
+            builder(window, cx).into_any_element()
+        }));
         self
     }
 
@@ -865,6 +883,7 @@ where
             this.state.menu_max_h = opts.menu_max_h;
             this.state.disabled = opts.disabled;
             this.state.appearance = opts.appearance;
+            this.aria_label = opts.aria_label;
             this.trigger_icon = opts.trigger_icon;
             this.check_icon = opts.check_icon;
             this.render_trigger = render_trigger;
@@ -903,6 +922,8 @@ fn render_trigger_container(
     fg: Hsla,
     outline_visible: bool,
     allow_open: bool,
+    open: bool,
+    aria_label: Option<SharedString>,
     trigger_body: AnyElement,
     trailing: AnyElement,
     toggle_handler: Option<Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>>,
@@ -911,6 +932,9 @@ fn render_trigger_container(
 ) -> impl IntoElement {
     div()
         .id("input")
+        .role(Role::ComboBox)
+        .aria_expanded(open)
+        .when_some(aria_label, |this, label| this.aria_label(label))
         .relative()
         .flex()
         .items_center()
@@ -925,13 +949,7 @@ fn render_trigger_container(
                 .rounded(cx.theme().radius)
                 .when(cx.theme().shadow, |this| this.shadow_xs())
         })
-        .map(|this| {
-            if disabled {
-                this.shadow_none()
-            } else {
-                this
-            }
-        })
+        .map(|this| if disabled { this.shadow_none() } else { this })
         .overflow_hidden()
         .input_size(size)
         .input_text_size(size)
@@ -1133,8 +1151,7 @@ mod tests {
         let cx = cx.add_empty_window();
         cx.update(|window, cx| {
             let items = SearchableVec::new(vec!["React", "Vue", "Angular"]);
-            let state = cx
-                .new(|cx| ComboboxState::new(items, vec![], window, cx).multiple(true));
+            let state = cx.new(|cx| ComboboxState::new(items, vec![], window, cx).multiple(true));
 
             state.update(cx, |s, cx| s.add_selected_index(IndexPath::new(0), cx));
             assert_eq!(state.read(cx).selected_values(), &["React"]);
@@ -1241,9 +1258,8 @@ mod tests {
 
     // Suppress unused import warning for SearchableListState in test module.
     #[allow(unused)]
-    fn _uses_state<D: SearchableListDelegate + 'static>(
-        _: &SearchableListState<D>,
-    ) where
+    fn _uses_state<D: SearchableListDelegate + 'static>(_: &SearchableListState<D>)
+    where
         <D::Item as SearchableListItem>::Value: PartialEq + Clone,
     {
     }

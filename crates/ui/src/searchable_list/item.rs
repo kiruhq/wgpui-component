@@ -1,6 +1,6 @@
 use gpui::{
     AnyElement, App, ElementId, InteractiveElement as _, IntoElement, ParentElement, RenderOnce,
-    StyleRefinement, Styled, Window, prelude::FluentBuilder,
+    Role, SharedString, StyleRefinement, Styled, Window, prelude::FluentBuilder,
 };
 
 use crate::{
@@ -24,6 +24,7 @@ pub struct SearchableListItemElement {
     /// Whether the trailing check icon is shown.
     checked: bool,
     disabled: bool,
+    aria_label: Option<SharedString>,
     children: Vec<AnyElement>,
     /// The icon drawn at the trailing edge when `checked` is `true`.
     check_icon: Option<Icon>,
@@ -38,6 +39,7 @@ impl SearchableListItemElement {
             selected: false,
             checked: false,
             disabled: false,
+            aria_label: None,
             children: Vec::new(),
             check_icon: Some(Icon::new(IconName::Check)),
         }
@@ -46,6 +48,12 @@ impl SearchableListItemElement {
     /// Set whether the trailing check icon is visible.
     pub fn checked(mut self, checked: bool) -> Self {
         self.checked = checked;
+        self
+    }
+
+    /// Set the accessible label for the list item.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -97,6 +105,9 @@ impl RenderOnce for SearchableListItemElement {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         h_flex()
             .id(self.id)
+            .role(Role::ListBoxOption)
+            .aria_selected(self.checked || self.selected)
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .relative()
             .gap_x_1()
             .py_1()

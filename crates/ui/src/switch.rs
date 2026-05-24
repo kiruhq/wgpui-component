@@ -4,8 +4,8 @@ use crate::{
 };
 use gpui::{
     Animation, AnimationExt as _, App, ElementId, Hsla, InteractiveElement, IntoElement,
-    ParentElement as _, RenderOnce, SharedString, StyleRefinement, Styled, Window, div,
-    prelude::FluentBuilder as _, px,
+    ParentElement as _, RenderOnce, Role, SharedString, StyleRefinement, Styled, Toggled, Window,
+    div, prelude::FluentBuilder as _, px,
 };
 use std::{rc::Rc, time::Duration};
 
@@ -17,6 +17,7 @@ pub struct Switch {
     checked: bool,
     disabled: bool,
     label: Option<Text>,
+    aria_label: Option<SharedString>,
     label_side: Side,
     on_click: Option<Rc<dyn Fn(&bool, &mut Window, &mut App)>>,
     size: Size,
@@ -34,6 +35,7 @@ impl Switch {
             checked: false,
             disabled: false,
             label: None,
+            aria_label: None,
             on_click: None,
             label_side: Side::Right,
             size: Size::Medium,
@@ -51,6 +53,12 @@ impl Switch {
     /// Set the label of the switch.
     pub fn label(mut self, label: impl Into<Text>) -> Self {
         self.label = Some(label.into());
+        self
+    }
+
+    /// Set the accessible label for the switch.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -136,6 +144,9 @@ impl RenderOnce for Switch {
         div().refine_style(&self.style).child(
             h_flex()
                 .id(self.id.clone())
+                .role(Role::Switch)
+                .aria_toggled(Toggled::from(checked))
+                .when_some(self.aria_label, |this, label| this.aria_label(label))
                 .gap_2()
                 .items_start()
                 .when(self.label_side.is_left(), |this| this.flex_row_reverse())

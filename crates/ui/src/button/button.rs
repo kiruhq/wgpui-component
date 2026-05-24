@@ -9,7 +9,7 @@ use crate::{
 };
 use gpui::{
     AnyElement, App, ClickEvent, Corners, Div, Edges, ElementId, Hsla, InteractiveElement,
-    Interactivity, IntoElement, MouseButton, ParentElement, Pixels, RenderOnce, SharedString,
+    Interactivity, IntoElement, MouseButton, ParentElement, Pixels, RenderOnce, Role, SharedString,
     Stateful, StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div,
     prelude::FluentBuilder as _, px, relative, transparent_white,
 };
@@ -195,6 +195,8 @@ pub struct Button {
     style: StyleRefinement,
     icon: Option<ButtonIcon>,
     label: Option<SharedString>,
+    aria_label: Option<SharedString>,
+    aria_expanded: Option<bool>,
     children: Vec<AnyElement>,
     disabled: bool,
     pub(crate) selected: bool,
@@ -238,6 +240,8 @@ impl Button {
             style: StyleRefinement::default(),
             icon: None,
             label: None,
+            aria_label: None,
+            aria_expanded: None,
             disabled: false,
             selected: false,
             variant: ButtonVariant::default(),
@@ -292,6 +296,18 @@ impl Button {
     /// Set label to the Button, if no label is set, the button will be in Icon Button mode.
     pub fn label(mut self, label: impl Into<SharedString>) -> Self {
         self.label = Some(label.into());
+        self
+    }
+
+    /// Set the accessible label for the button.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
+        self
+    }
+
+    /// Set whether the button's controlled content is expanded.
+    pub fn aria_expanded(mut self, expanded: bool) -> Self {
+        self.aria_expanded = Some(expanded);
         self
     }
 
@@ -448,6 +464,7 @@ impl RenderOnce for Button {
         let clickable = self.clickable();
         let is_disabled = self.disabled;
         let hoverable = self.hoverable();
+        let aria_label = self.aria_label.clone().or_else(|| self.label.clone());
         let normal_style = style.normal(self.outline, cx);
         let icon_size = match self.size {
             Size::Size(v) => Size::Size(v * 0.75),
@@ -469,6 +486,12 @@ impl RenderOnce for Button {
         };
 
         self.base
+            .role(Role::Button)
+            .when_some(aria_label, |this, label| this.aria_label(label))
+            .when(self.selected, |this| this.aria_selected(true))
+            .when_some(self.aria_expanded, |this, expanded| {
+                this.aria_expanded(expanded)
+            })
             .when(!self.disabled, |this| {
                 this.track_focus(
                     &focus_handle

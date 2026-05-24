@@ -1,8 +1,7 @@
 use gpui::Corners;
 use gpui::{
-    Anchor, App, Context, Edges, ElementId, InteractiveElement as _, IntoElement,
-    ParentElement, RenderOnce, SharedString, StyleRefinement, Styled, Window, div,
-    prelude::FluentBuilder,
+    Anchor, App, Context, Edges, ElementId, InteractiveElement as _, IntoElement, ParentElement,
+    RenderOnce, SharedString, StyleRefinement, Styled, Window, div, prelude::FluentBuilder,
 };
 
 use crate::{
@@ -22,6 +21,7 @@ pub struct DropdownButton {
         Option<Box<dyn Fn(PopupMenu, &mut Window, &mut Context<PopupMenu>) -> PopupMenu + 'static>>,
     selected: bool,
     disabled: bool,
+    aria_label: Option<SharedString>,
     // The button props
     compact: bool,
     outline: bool,
@@ -43,6 +43,7 @@ impl DropdownButton {
             menu: None,
             selected: false,
             disabled: false,
+            aria_label: None,
             compact: false,
             outline: false,
             loading: false,
@@ -57,6 +58,12 @@ impl DropdownButton {
     /// Set tooltip text for the dropdown button.
     pub fn tooltip(mut self, tooltip: impl Into<SharedString>) -> Self {
         self.tooltip.text = Some((tooltip.into(), None));
+        self
+    }
+
+    /// Set the accessible label for the menu trigger.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -156,6 +163,10 @@ impl Selectable for DropdownButton {
 impl RenderOnce for DropdownButton {
     fn render(self, _: &mut Window, _: &mut App) -> impl IntoElement {
         let rounded = self.variant.is_ghost() && !self.selected;
+        let popup_aria_label = self
+            .aria_label
+            .clone()
+            .unwrap_or_else(|| SharedString::from("Open menu"));
 
         div()
             .id(self.id)
@@ -189,6 +200,8 @@ impl RenderOnce for DropdownButton {
                     this.child(
                         Button::new("popup")
                             .icon(IconName::ChevronDown)
+                            .aria_label(popup_aria_label)
+                            .aria_expanded(self.selected)
                             .rounded(self.rounded)
                             .border_edges(Edges {
                                 left: rounded,

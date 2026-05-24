@@ -2,9 +2,9 @@ use std::{cell::RefCell, rc::Rc, time::Duration};
 
 use gpui::{
     Anchor, Animation, AnimationExt as _, AnyElement, App, Bounds, Div, Edges, ElementId,
-    InteractiveElement, IntoElement, ParentElement, Pixels, RenderOnce, ScrollHandle, SharedString,
-    Stateful, StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div,
-    prelude::FluentBuilder as _, px,
+    InteractiveElement, IntoElement, Orientation, ParentElement, Pixels, RenderOnce, Role,
+    ScrollHandle, SharedString, Stateful, StatefulInteractiveElement as _, StyleRefinement, Styled,
+    Window, div, prelude::FluentBuilder as _, px,
 };
 use rust_i18n::t;
 use smallvec::SmallVec;
@@ -45,6 +45,7 @@ pub struct TabBar {
     prefix: Option<AnyElement>,
     suffix: Option<AnyElement>,
     children: SmallVec<[Tab; 2]>,
+    aria_label: Option<SharedString>,
     last_empty_space: AnyElement,
     selected_index: Option<usize>,
     variant: TabVariant,
@@ -65,6 +66,7 @@ impl TabBar {
             scroll_handle: None,
             prefix: None,
             suffix: None,
+            aria_label: None,
             variant: TabVariant::default(),
             size: Size::default(),
             last_empty_space: div().w_3().into_any_element(),
@@ -125,6 +127,12 @@ impl TabBar {
     /// Set the suffix element of the TabBar
     pub fn suffix(mut self, suffix: impl IntoElement) -> Self {
         self.suffix = Some(suffix.into_any_element());
+        self
+    }
+
+    /// Set the accessible label for the tab bar.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -402,6 +410,9 @@ impl RenderOnce for TabBar {
         let on_click = self.on_click.clone();
 
         self.base
+            .role(Role::TabList)
+            .aria_orientation(Orientation::Horizontal)
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .group("tab-bar")
             .relative()
             .flex()
@@ -487,6 +498,7 @@ impl RenderOnce for TabBar {
                         .xsmall()
                         .ghost()
                         .icon(IconName::ChevronDown)
+                        .aria_label("More tabs")
                         .dropdown_menu(move |mut this, _, _| {
                             this = this.scrollable(true);
                             for (ix, (label, icon, disabled)) in item_metas.iter().enumerate() {

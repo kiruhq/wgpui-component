@@ -5,7 +5,10 @@ use crate::{
     list::{ListDelegate, ListState},
 };
 
-use super::{delegate::{SearchableListDelegate, SearchableListItem as _}, item::SearchableListItemElement};
+use super::{
+    delegate::{SearchableListDelegate, SearchableListItem as _},
+    item::SearchableListItemElement,
+};
 
 /// Bridges a [`SearchableListDelegate`] into the [`ListDelegate`] protocol.
 ///
@@ -116,6 +119,7 @@ impl<D: SearchableListDelegate + 'static> ListDelegate for SearchableListAdapter
             return Some(
                 SearchableListItemElement::new(ix.row)
                     .disabled(disabled)
+                    .aria_label(item.title())
                     .with_size(size)
                     .child(el),
             );
@@ -133,6 +137,7 @@ impl<D: SearchableListDelegate + 'static> ListDelegate for SearchableListAdapter
         Some(
             SearchableListItemElement::new(ix.row)
                 .checked(is_checked)
+                .aria_label(item.title())
                 .check_icon(check_icon)
                 .disabled(disabled)
                 .with_size(size)

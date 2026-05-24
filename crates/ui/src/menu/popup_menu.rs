@@ -7,8 +7,8 @@ use crate::{Side, Size, StyledExt, kbd::Kbd};
 use gpui::{
     Action, Anchor, AnyElement, App, AppContext, Bounds, Context, DismissEvent, Edges, Entity,
     EventEmitter, FocusHandle, Focusable, InteractiveElement, IntoElement, KeyBinding,
-    ParentElement, Pixels, Render, ScrollHandle, SharedString, StatefulInteractiveElement, Styled,
-    WeakEntity, Window, anchored, div, prelude::FluentBuilder, px, rems,
+    ParentElement, Pixels, Render, Role, ScrollHandle, SharedString, StatefulInteractiveElement,
+    Styled, Toggled, WeakEntity, Window, anchored, div, prelude::FluentBuilder, px, rems,
 };
 use gpui::{ClickEvent, Half, MouseDownEvent, OwnedMenuItem, Point, Subscription};
 
@@ -1117,6 +1117,7 @@ impl PopupMenu {
 
         match item {
             PopupMenuItem::Separator => this
+                .no_accessible_role()
                 .h_auto()
                 .p_0()
                 .my_0p5()
@@ -1124,20 +1125,30 @@ impl PopupMenu {
                 .border_b(px(2.))
                 .border_color(cx.theme().border)
                 .disabled(true),
-            PopupMenuItem::Label(label) => this.disabled(true).cursor_default().child(
-                h_flex()
-                    .cursor_default()
-                    .items_center()
-                    .gap_x_1()
-                    .children(Self::render_icon(has_left_icon, false, None, window, cx))
-                    .child(div().flex_1().child(label.clone())),
-            ),
+            PopupMenuItem::Label(label) => this
+                .role(Role::Label)
+                .aria_label(label.clone())
+                .disabled(true)
+                .cursor_default()
+                .child(
+                    h_flex()
+                        .cursor_default()
+                        .items_center()
+                        .gap_x_1()
+                        .children(Self::render_icon(has_left_icon, false, None, window, cx))
+                        .child(div().flex_1().child(label.clone())),
+                ),
             PopupMenuItem::ElementItem {
                 render,
                 icon,
                 disabled,
+                checked,
                 ..
             } => this
+                .when(*checked, |this| {
+                    this.role(Role::MenuItemCheckBox)
+                        .aria_toggled(Toggled::True)
+                })
                 .when(!disabled, |this| {
                     this.on_click(
                         cx.listener(move |this, _, window, cx| this.on_click(ix, window, cx)),
@@ -1166,51 +1177,57 @@ impl PopupMenu {
                 action,
                 disabled,
                 is_link,
+                checked,
                 ..
             } => {
                 let show_link_icon = *is_link && self.external_link_icon;
                 let action = action.as_ref().map(|action| action.boxed_clone());
                 let key = self.render_key_binding(action, window, cx);
 
-                this.when(!disabled, |this| {
-                    this.on_click(
-                        cx.listener(move |this, _, window, cx| this.on_click(ix, window, cx)),
+                this.aria_label(label.clone())
+                    .when(*checked, |this| {
+                        this.role(Role::MenuItemCheckBox)
+                            .aria_toggled(Toggled::True)
+                    })
+                    .when(!disabled, |this| {
+                        this.on_click(
+                            cx.listener(move |this, _, window, cx| this.on_click(ix, window, cx)),
+                        )
+                    })
+                    .disabled(*disabled)
+                    .h(item_height)
+                    .gap_x_1()
+                    .children(Self::render_icon(
+                        has_left_icon,
+                        is_left_check,
+                        icon.clone(),
+                        window,
+                        cx,
+                    ))
+                    .child(
+                        h_flex()
+                            .w_full()
+                            .gap_3()
+                            .items_center()
+                            .justify_between()
+                            .when(!show_link_icon, |this| this.child(label.clone()))
+                            .children(right_check_icon)
+                            .when(show_link_icon, |this| {
+                                this.child(
+                                    h_flex()
+                                        .w_full()
+                                        .justify_between()
+                                        .gap_1p5()
+                                        .child(label.clone())
+                                        .child(
+                                            Icon::new(IconName::ExternalLink)
+                                                .xsmall()
+                                                .text_color(cx.theme().muted_foreground),
+                                        ),
+                                )
+                            })
+                            .children(key),
                     )
-                })
-                .disabled(*disabled)
-                .h(item_height)
-                .gap_x_1()
-                .children(Self::render_icon(
-                    has_left_icon,
-                    is_left_check,
-                    icon.clone(),
-                    window,
-                    cx,
-                ))
-                .child(
-                    h_flex()
-                        .w_full()
-                        .gap_3()
-                        .items_center()
-                        .justify_between()
-                        .when(!show_link_icon, |this| this.child(label.clone()))
-                        .children(right_check_icon)
-                        .when(show_link_icon, |this| {
-                            this.child(
-                                h_flex()
-                                    .w_full()
-                                    .justify_between()
-                                    .gap_1p5()
-                                    .child(label.clone())
-                                    .child(
-                                        Icon::new(IconName::ExternalLink)
-                                            .xsmall()
-                                            .text_color(cx.theme().muted_foreground),
-                                    ),
-                            )
-                        })
-                        .children(key),
-                )
             }
             PopupMenuItem::Submenu {
                 icon,
@@ -1218,6 +1235,8 @@ impl PopupMenu {
                 menu,
                 disabled,
             } => this
+                .aria_label(label.clone())
+                .aria_expanded(selected)
                 .selected(selected)
                 .disabled(*disabled)
                 .items_start()
@@ -1312,6 +1331,7 @@ impl Render for PopupMenu {
 
         v_flex()
             .id("popup-menu")
+            .role(Role::Menu)
             .key_context(CONTEXT)
             .track_focus(&self.focus_handle)
             .on_action(cx.listener(Self::select_up))

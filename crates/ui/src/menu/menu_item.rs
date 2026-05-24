@@ -1,8 +1,9 @@
-use crate::{h_flex, ActiveTheme, Disableable, StyledExt};
+use crate::{ActiveTheme, Disableable, StyledExt, h_flex};
+use gpui::Toggled;
 use gpui::{
-    prelude::FluentBuilder as _, AnyElement, App, ClickEvent, ElementId, InteractiveElement,
-    IntoElement, MouseButton, ParentElement, RenderOnce, SharedString,
-    StatefulInteractiveElement as _, StyleRefinement, Styled, Window,
+    AnyElement, App, ClickEvent, ElementId, InteractiveElement, IntoElement, MouseButton,
+    ParentElement, RenderOnce, Role, SharedString, StatefulInteractiveElement as _,
+    StyleRefinement, Styled, Window, prelude::FluentBuilder as _,
 };
 use smallvec::SmallVec;
 
@@ -13,6 +14,10 @@ pub(crate) struct MenuItemElement {
     style: StyleRefinement,
     disabled: bool,
     selected: bool,
+    role: Option<Role>,
+    aria_label: Option<SharedString>,
+    aria_toggled: Option<Toggled>,
+    aria_expanded: Option<bool>,
     on_click: Option<Box<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>>,
     on_hover: Option<Box<dyn Fn(&bool, &mut Window, &mut App) + 'static>>,
     children: SmallVec<[AnyElement; 2]>,
@@ -28,6 +33,10 @@ impl MenuItemElement {
             style: StyleRefinement::default(),
             disabled: false,
             selected: false,
+            role: Some(Role::MenuItem),
+            aria_label: None,
+            aria_toggled: None,
+            aria_expanded: None,
             on_click: None,
             on_hover: None,
             children: SmallVec::new(),
@@ -37,6 +46,31 @@ impl MenuItemElement {
     /// Set ListItem as the selected item style.
     pub(crate) fn selected(mut self, selected: bool) -> Self {
         self.selected = selected;
+        self
+    }
+
+    pub(crate) fn role(mut self, role: Role) -> Self {
+        self.role = Some(role);
+        self
+    }
+
+    pub(crate) fn no_accessible_role(mut self) -> Self {
+        self.role = None;
+        self
+    }
+
+    pub(crate) fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
+        self
+    }
+
+    pub(crate) fn aria_toggled(mut self, toggled: Toggled) -> Self {
+        self.aria_toggled = Some(toggled);
+        self
+    }
+
+    pub(crate) fn aria_expanded(mut self, expanded: bool) -> Self {
+        self.aria_expanded = Some(expanded);
         self
     }
 
@@ -86,6 +120,15 @@ impl RenderOnce for MenuItemElement {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         h_flex()
             .id(self.id)
+            .when_some(self.role, |this, role| this.role(role))
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
+            .when_some(self.aria_toggled, |this, toggled| {
+                this.aria_toggled(toggled)
+            })
+            .when_some(self.aria_expanded, |this, expanded| {
+                this.aria_expanded(expanded)
+            })
+            .when(self.selected, |this| this.aria_selected(true))
             .group(&self.group_name)
             .gap_x_1()
             .py_1()

@@ -6,8 +6,8 @@ use crate::{
 };
 use gpui::{
     AnyElement, App, Axis, Div, ElementId, InteractiveElement, IntoElement, ParentElement,
-    RenderOnce, SharedString, StatefulInteractiveElement, StyleRefinement, Styled, Window, div,
-    prelude::FluentBuilder, px, relative, rems,
+    RenderOnce, Role, SharedString, StatefulInteractiveElement, StyleRefinement, Styled, Toggled,
+    Window, div, prelude::FluentBuilder, px, relative, rems,
 };
 
 /// A Radio element.
@@ -19,6 +19,7 @@ pub struct Radio {
     style: StyleRefinement,
     id: ElementId,
     label: Option<Text>,
+    aria_label: Option<SharedString>,
     children: Vec<AnyElement>,
     checked: bool,
     disabled: bool,
@@ -37,6 +38,7 @@ impl Radio {
             base: div(),
             style: StyleRefinement::default(),
             label: None,
+            aria_label: None,
             children: Vec::new(),
             checked: false,
             disabled: false,
@@ -57,6 +59,12 @@ impl Radio {
     /// Set the label of the Radio element.
     pub fn label(mut self, label: impl Into<Text>) -> Self {
         self.label = Some(label.into());
+        self
+    }
+
+    /// Set the accessible label for the radio.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -157,6 +165,10 @@ impl RenderOnce for Radio {
         div().child(
             self.base
                 .id(self.id.clone())
+                .role(Role::RadioButton)
+                .aria_toggled(Toggled::from(checked))
+                .aria_selected(checked)
+                .when_some(self.aria_label, |this, label| this.aria_label(label))
                 .when(!self.disabled, |this| {
                     this.track_focus(
                         &focus_handle
@@ -246,6 +258,7 @@ pub struct RadioGroup {
     id: ElementId,
     style: StyleRefinement,
     radios: Vec<Radio>,
+    aria_label: Option<SharedString>,
     layout: Axis,
     selected_index: Option<usize>,
     disabled: bool,
@@ -259,6 +272,7 @@ impl RadioGroup {
             style: StyleRefinement::default().flex_1(),
             on_click: None,
             layout: Axis::Vertical,
+            aria_label: None,
             selected_index: None,
             disabled: false,
             radios: vec![],
@@ -278,6 +292,12 @@ impl RadioGroup {
     /// Set the layout of the Radio group. Default is `Axis::Vertical`.
     pub fn layout(mut self, layout: Axis) -> Self {
         self.layout = layout;
+        self
+    }
+
+    /// Set the accessible label for the radio group.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -350,7 +370,15 @@ impl RenderOnce for RadioGroup {
             h_flex().w_full().flex_wrap()
         };
 
-        let mut container = div().id(self.id);
+        let mut container = div()
+            .id(self.id)
+            .role(Role::RadioGroup)
+            .aria_orientation(if self.layout.is_vertical() {
+                gpui::Orientation::Vertical
+            } else {
+                gpui::Orientation::Horizontal
+            })
+            .when_some(self.aria_label, |this, label| this.aria_label(label));
         *container.style() = self.style;
 
         container.child(

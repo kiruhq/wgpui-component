@@ -6,8 +6,8 @@ use crate::{
 };
 use gpui::{
     Animation, AnimationExt, AnyElement, App, Div, ElementId, InteractiveElement, IntoElement,
-    ParentElement, RenderOnce, SharedString, StatefulInteractiveElement, StyleRefinement, Styled,
-    Window, div, prelude::FluentBuilder as _, px, relative, rems, svg,
+    ParentElement, RenderOnce, Role, SharedString, StatefulInteractiveElement, StyleRefinement,
+    Styled, Toggled, Window, div, prelude::FluentBuilder as _, px, relative, rems, svg,
 };
 
 /// A Checkbox element.
@@ -17,6 +17,7 @@ pub struct Checkbox {
     base: Div,
     style: StyleRefinement,
     label: Option<Text>,
+    aria_label: Option<SharedString>,
     children: Vec<AnyElement>,
     checked: bool,
     disabled: bool,
@@ -35,6 +36,7 @@ impl Checkbox {
             base: div(),
             style: StyleRefinement::default(),
             label: None,
+            aria_label: None,
             children: Vec::new(),
             checked: false,
             disabled: false,
@@ -55,6 +57,12 @@ impl Checkbox {
     /// Set the label for the checkbox.
     pub fn label(mut self, label: impl Into<Text>) -> Self {
         self.label = Some(label.into());
+        self
+    }
+
+    /// Set the accessible label for the checkbox.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -222,6 +230,9 @@ impl RenderOnce for Checkbox {
         div().child(
             self.base
                 .id(self.id.clone())
+                .role(Role::CheckBox)
+                .aria_toggled(Toggled::from(checked))
+                .when_some(self.aria_label, |this, label| this.aria_label(label))
                 .when(!self.disabled, |this| {
                     this.track_focus(
                         &focus_handle

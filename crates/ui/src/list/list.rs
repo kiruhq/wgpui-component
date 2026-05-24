@@ -1,5 +1,5 @@
-use std::ops::Range;
 use instant::Duration;
+use std::ops::Range;
 
 use crate::actions::{Cancel, Confirm, SelectDown, SelectUp};
 use crate::input::InputState;
@@ -14,7 +14,7 @@ use crate::{Icon, IndexPath, Selectable, Sizable, StyledExt};
 use crate::{VirtualListScrollHandle, list::ListDelegate, v_virtual_list};
 use gpui::{
     App, AvailableSpace, ClickEvent, Context, DefiniteLength, EdgesRefinement, EventEmitter,
-    ListSizingBehavior, RenderOnce, ScrollStrategy, SharedString, StatefulInteractiveElement,
+    ListSizingBehavior, RenderOnce, Role, ScrollStrategy, SharedString, StatefulInteractiveElement,
     StyleRefinement, Subscription, px, size,
 };
 use gpui::{
@@ -295,7 +295,10 @@ where
                     });
 
                     // Always wait 100ms to avoid flicker
-                    window.background_executor().timer(Duration::from_millis(100)).await;
+                    window
+                        .background_executor()
+                        .timer(Duration::from_millis(100))
+                        .await;
                     _ = this.update_in(window, |this, window, cx| {
                         this.set_searching(false, window, cx);
                     });
@@ -632,6 +635,7 @@ where
         v_flex()
             .key_context("List")
             .id("list-state")
+            .role(Role::List)
             .track_focus(&self.focus_handle)
             .size_full()
             .relative()

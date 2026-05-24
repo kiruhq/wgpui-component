@@ -4,8 +4,8 @@ use crate::{ActiveTheme, Icon, IconName, Selectable, Sizable, Size, StyledExt, h
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnyElement, App, ClickEvent, Div, Edges, Hsla, InteractiveElement, IntoElement, MouseButton,
-    ParentElement, Pixels, RenderOnce, SharedString, StatefulInteractiveElement, Styled, Window,
-    div, px, relative,
+    ParentElement, Pixels, RenderOnce, Role, SharedString, StatefulInteractiveElement, Styled,
+    Window, div, px, relative,
 };
 
 /// Tab variants.
@@ -394,6 +394,7 @@ pub struct Tab {
     ix: usize,
     base: Div,
     pub(super) label: Option<SharedString>,
+    aria_label: Option<SharedString>,
     pub(super) icon: Option<Icon>,
     prefix: Option<AnyElement>,
     pub(super) tab_bar_prefix: Option<bool>,
@@ -443,6 +444,7 @@ impl Default for Tab {
             ix: 0,
             base: div(),
             label: None,
+            aria_label: None,
             icon: None,
             tab_bar_prefix: None,
             children: Vec::new(),
@@ -466,7 +468,17 @@ impl Tab {
 
     /// Set label for the tab.
     pub fn label(mut self, label: impl Into<SharedString>) -> Self {
-        self.label = Some(label.into());
+        let label = label.into();
+        if self.aria_label.is_none() {
+            self.aria_label = Some(label.clone());
+        }
+        self.label = Some(label);
+        self
+    }
+
+    /// Set the accessible label for the tab.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -612,6 +624,9 @@ impl RenderOnce for Tab {
 
         self.base
             .id(self.ix)
+            .role(Role::Tab)
+            .aria_selected(self.selected)
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .flex()
             .flex_wrap()
             .gap_1()

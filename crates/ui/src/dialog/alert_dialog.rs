@@ -1,6 +1,7 @@
 use gpui::{
     AnyElement, App, ClickEvent, InteractiveElement as _, IntoElement, MouseButton, ParentElement,
-    Pixels, RenderOnce, StyleRefinement, Styled, Window, div, prelude::FluentBuilder as _,
+    Pixels, RenderOnce, Role, SharedString, StyleRefinement, Styled, Window, div,
+    prelude::FluentBuilder as _,
 };
 
 use crate::{
@@ -79,7 +80,10 @@ impl AlertDialog {
     /// You can change this with `.overlay_closable(true)`.
     pub fn new(cx: &mut App) -> Self {
         Self {
-            base: Dialog::new(cx).overlay_closable(false).close_button(false),
+            base: Dialog::new(cx)
+                .aria_role(Role::AlertDialog)
+                .overlay_closable(false)
+                .close_button(false),
             trigger: None,
             icon: None,
             title: None,
@@ -168,6 +172,12 @@ impl AlertDialog {
     pub fn title(mut self, title: impl IntoElement) -> Self {
         self.debug_assert_no_trigger();
         self.title = Some(title.into_any_element());
+        self
+    }
+
+    /// Set the accessible label for the alert dialog.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.base = self.base.aria_label(label);
         self
     }
 
@@ -329,6 +339,7 @@ impl AlertDialog {
         let style = self.base.style.clone();
         let props = self.base.props.clone();
         let button_props = self.button_props.clone();
+        let aria_label = self.base.aria_label.clone();
 
         div()
             .on_mouse_down(MouseButton::Left, move |_, window, cx| {
@@ -336,8 +347,11 @@ impl AlertDialog {
                 let style = style.clone();
                 let props = props.clone();
                 let button_props = button_props.clone();
+                let aria_label = aria_label.clone();
                 window.open_dialog(cx, move |dialog, _, _| {
                     dialog
+                        .aria_role(Role::AlertDialog)
+                        .when_some(aria_label.clone(), |this, label| this.aria_label(label))
                         .refine_style(&style)
                         .button_props(button_props.clone())
                         .with_props(props.clone())

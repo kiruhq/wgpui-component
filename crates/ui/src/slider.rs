@@ -4,9 +4,9 @@ use crate::{ActiveTheme, AxisExt, ElementExt, StyledExt, h_flex};
 use gpui::{
     Along, App, AppContext as _, Axis, Background, Bounds, Context, Corners, DefiniteLength,
     DragMoveEvent, Empty, Entity, EntityId, EventEmitter, Hsla, InteractiveElement, IntoElement,
-    IsZero, MouseButton, MouseDownEvent, ParentElement as _, Pixels, Point, Render, RenderOnce,
-    StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div,
-    prelude::FluentBuilder as _, px, relative,
+    IsZero, MouseButton, MouseDownEvent, Orientation, ParentElement as _, Pixels, Point, Render,
+    RenderOnce, Role, SharedString, StatefulInteractiveElement as _, StyleRefinement, Styled,
+    Window, div, prelude::FluentBuilder as _, px, relative,
 };
 
 #[derive(Clone)]
@@ -399,6 +399,7 @@ pub struct Slider {
     state: Entity<SliderState>,
     axis: Axis,
     style: StyleRefinement,
+    aria_label: Option<SharedString>,
     disabled: bool,
 }
 
@@ -409,6 +410,7 @@ impl Slider {
             axis: Axis::Horizontal,
             state: state.clone(),
             style: StyleRefinement::default(),
+            aria_label: None,
             disabled: false,
         }
     }
@@ -422,6 +424,12 @@ impl Slider {
     /// As a vertical slider.
     pub fn vertical(mut self) -> Self {
         self.axis = Axis::Vertical;
+        self
+    }
+
+    /// Set the accessible label for the slider.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -518,6 +526,8 @@ impl RenderOnce for Slider {
         let entity_id = self.state.entity_id();
         let state = self.state.read(cx);
         let is_range = state.value().is_range();
+        let aria_value = state.value().start();
+        let aria_label = self.aria_label.clone();
         let percentage = state.percentage.clone();
         let bar_start = relative(percentage.start);
         let bar_end = relative(1. - percentage.end);
@@ -563,6 +573,16 @@ impl RenderOnce for Slider {
 
         div()
             .id(("slider", self.state.entity_id()))
+            .role(Role::Slider)
+            .aria_numeric_value(aria_value as f64)
+            .aria_min_numeric_value(state.min as f64)
+            .aria_max_numeric_value(state.max as f64)
+            .aria_orientation(if axis.is_horizontal() {
+                Orientation::Horizontal
+            } else {
+                Orientation::Vertical
+            })
+            .when_some(aria_label, |this, label| this.aria_label(label))
             .flex()
             .flex_1()
             .items_center()

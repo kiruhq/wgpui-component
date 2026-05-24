@@ -1,7 +1,7 @@
 use gpui::{
     AnyElement, App, AppContext as _, Context, Empty, Entity, EventEmitter, FocusHandle, Focusable,
     InteractiveElement, IntoElement, KeyDownEvent, MouseButton, MouseDownEvent, ParentElement as _,
-    Render, RenderOnce, SharedString, Styled as _, Subscription, Window, div,
+    Render, RenderOnce, Role, SharedString, Styled as _, Subscription, Window, div,
     prelude::FluentBuilder, px,
 };
 
@@ -239,6 +239,7 @@ pub struct OtpInput {
     state: Entity<OtpState>,
     number_of_groups: usize,
     size: Size,
+    aria_label: Option<SharedString>,
     disabled: bool,
 }
 
@@ -249,6 +250,7 @@ impl OtpInput {
             state: state.clone(),
             number_of_groups: 2,
             size: Size::Medium,
+            aria_label: None,
             disabled: false,
         }
     }
@@ -256,6 +258,12 @@ impl OtpInput {
     /// Set number of groups in the OTP Input.
     pub fn groups(mut self, n: usize) -> Self {
         self.number_of_groups = n;
+        self
+    }
+
+    /// Set the accessible label for the OTP input.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 }
@@ -363,6 +371,8 @@ impl RenderOnce for OtpInput {
 
         v_flex()
             .id(("otp-input", self.state.entity_id()))
+            .role(Role::TextInput)
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .track_focus(&self.state.read(cx).focus_handle)
             .when(!self.disabled, |this| {
                 this.on_key_down(window.listener_for(&self.state, OtpState::on_key_down))

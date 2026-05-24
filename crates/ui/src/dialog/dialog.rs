@@ -3,8 +3,8 @@ use std::{rc::Rc, sync::LazyLock, time::Duration};
 use gpui::{
     Animation, AnimationExt as _, AnyElement, App, Bounds, BoxShadow, ClickEvent, Edges,
     FocusHandle, Hsla, InteractiveElement, IntoElement, KeyBinding, MouseButton, ParentElement,
-    Pixels, Point, RenderOnce, SharedString, StyleRefinement, Styled, Window, WindowControlArea,
-    actions, anchored, div, hsla, point, prelude::FluentBuilder, px,
+    Pixels, Point, RenderOnce, Role, SharedString, StyleRefinement, Styled, Window,
+    WindowControlArea, actions, anchored, div, hsla, point, prelude::FluentBuilder, px,
 };
 use rust_i18n::t;
 
@@ -207,6 +207,8 @@ pub struct Dialog {
     pub(crate) footer: Option<AnyElement>,
     pub(crate) content_builder: Option<ContentBuilderFn>,
     pub(crate) props: DialogProps,
+    pub(crate) aria_label: Option<SharedString>,
+    pub(crate) aria_role: Role,
 
     button_props: DialogButtonProps,
 
@@ -235,6 +237,8 @@ impl Dialog {
             footer: None,
             content_builder: None,
             props: DialogProps::default(),
+            aria_label: None,
+            aria_role: Role::Dialog,
             children: Vec::new(),
             layer_ix: 0,
             button_props: DialogButtonProps::default(),
@@ -261,6 +265,17 @@ impl Dialog {
     /// Sets the title of the dialog.
     pub fn title(mut self, title: impl IntoElement) -> Self {
         self.title = Some(title.into_any_element());
+        self
+    }
+
+    /// Set the accessible label for the dialog.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
+        self
+    }
+
+    pub(crate) fn aria_role(mut self, role: Role) -> Self {
+        self.aria_role = role;
         self
     }
 
@@ -405,6 +420,8 @@ impl Dialog {
         let style = self.style.clone();
         let props = self.props.clone();
         let button_props = self.button_props.clone();
+        let aria_label = self.aria_label.clone();
+        let aria_role = self.aria_role;
 
         div()
             .on_mouse_down(MouseButton::Left, move |_, window, cx| {
@@ -412,8 +429,11 @@ impl Dialog {
                 let style = style.clone();
                 let props = props.clone();
                 let button_props = button_props.clone();
+                let aria_label = aria_label.clone();
                 window.open_dialog(cx, move |dialog, _, _| {
                     dialog
+                        .aria_role(aria_role)
+                        .when_some(aria_label.clone(), |this, label| this.aria_label(label))
                         .refine_style(&style)
                         .button_props(button_props.clone())
                         .with_props(props.clone())
@@ -522,6 +542,8 @@ impl RenderOnce for Dialog {
                     .child(
                         v_flex()
                             .id(layer_ix)
+                            .role(self.aria_role)
+                            .when_some(self.aria_label, |this, label| this.aria_label(label))
                             .track_focus(&self.focus_handle)
                             .focus_trap(format!("dialog-{}", layer_ix), &self.focus_handle)
                             .bg(cx.theme().background)
@@ -629,6 +651,7 @@ impl RenderOnce for Dialog {
                                     .small()
                                     .ghost()
                                     .icon(IconName::Close)
+                                    .aria_label("Close")
                                     .on_click({
                                         let on_cancel = self.button_props.on_cancel.clone();
                                         let on_close = self.button_props.on_close.clone();

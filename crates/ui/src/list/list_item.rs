@@ -1,7 +1,7 @@
 use crate::{ActiveTheme, Disableable, Icon, Selectable, Sizable as _, StyledExt, h_flex};
 use gpui::{
     AnyElement, App, ClickEvent, Div, ElementId, InteractiveElement, IntoElement, MouseButton,
-    MouseDownEvent, MouseMoveEvent, ParentElement, RenderOnce, Stateful,
+    MouseDownEvent, MouseMoveEvent, ParentElement, RenderOnce, Role, SharedString, Stateful,
     StatefulInteractiveElement as _, StyleRefinement, Styled, Window, div,
     prelude::FluentBuilder as _,
 };
@@ -29,6 +29,7 @@ pub struct ListItem {
     style: StyleRefinement,
     disabled: bool,
     selected: bool,
+    aria_label: Option<SharedString>,
     secondary_selected: bool,
     confirmed: bool,
     check_icon: Option<Icon>,
@@ -49,6 +50,7 @@ impl ListItem {
             style: StyleRefinement::default(),
             disabled: false,
             selected: false,
+            aria_label: None,
             secondary_selected: false,
             confirmed: false,
             on_click: None,
@@ -75,6 +77,12 @@ impl ListItem {
     /// Set ListItem as the selected item style.
     pub fn selected(mut self, selected: bool) -> Self {
         self.selected = selected;
+        self
+    }
+
+    /// Set the accessible label for the list item.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -174,6 +182,11 @@ impl RenderOnce for ListItem {
         let is_selectable = !(self.disabled || self.mode.is_separator());
 
         self.base
+            .when(!self.mode.is_separator(), |this| {
+                this.role(Role::ListItem)
+                    .aria_selected(self.selected || self.secondary_selected)
+            })
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .relative()
             .gap_x_1()
             .py_1()

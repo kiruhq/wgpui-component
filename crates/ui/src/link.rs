@@ -1,6 +1,7 @@
 use gpui::{
-    div, AnyElement, ClickEvent, ElementId, InteractiveElement, IntoElement, MouseButton,
-    ParentElement, RenderOnce, SharedString, StatefulInteractiveElement, StyleRefinement, Styled,
+    AnyElement, ClickEvent, ElementId, InteractiveElement, IntoElement, MouseButton, ParentElement,
+    RenderOnce, Role, SharedString, StatefulInteractiveElement, StyleRefinement, Styled, div,
+    prelude::FluentBuilder as _,
 };
 
 use crate::{ActiveTheme as _, StyledExt};
@@ -11,6 +12,7 @@ pub struct Link {
     id: ElementId,
     style: StyleRefinement,
     href: Option<SharedString>,
+    aria_label: Option<SharedString>,
     disabled: bool,
     on_click: Option<Box<dyn Fn(&ClickEvent, &mut gpui::Window, &mut gpui::App) + 'static>>,
     children: Vec<AnyElement>,
@@ -23,6 +25,7 @@ impl Link {
             id: id.into(),
             style: StyleRefinement::default(),
             href: None,
+            aria_label: None,
             on_click: None,
             disabled: false,
             children: Vec::new(),
@@ -32,6 +35,12 @@ impl Link {
     /// Set the href of the link.
     pub fn href(mut self, href: impl Into<SharedString>) -> Self {
         self.href = Some(href.into());
+        self
+    }
+
+    /// Set the accessible label for the link.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -73,6 +82,8 @@ impl RenderOnce for Link {
 
         div()
             .id(self.id)
+            .role(Role::Link)
+            .when_some(self.aria_label, |this, label| this.aria_label(label))
             .text_color(cx.theme().link)
             .text_decoration_1()
             .text_decoration_color(cx.theme().link)

@@ -3,8 +3,8 @@ use std::rc::Rc;
 use gpui::prelude::FluentBuilder as _;
 use gpui::{
     AnyElement, App, Context, DefiniteLength, Edges, EdgesRefinement, Entity, Hsla,
-    InteractiveElement as _, IntoElement, MouseButton, ParentElement as _, Rems, RenderOnce,
-    StyleRefinement, Styled, TextAlign, Window, div, px, relative,
+    InteractiveElement as _, IntoElement, MouseButton, ParentElement as _, Rems, RenderOnce, Role,
+    SharedString, StyleRefinement, Styled, TextAlign, Window, div, px, relative,
 };
 
 use crate::button::{Button, ButtonVariants as _};
@@ -42,6 +42,7 @@ pub struct Input {
     appearance: bool,
     cleanable: bool,
     mask_toggle: bool,
+    aria_label: Option<SharedString>,
     disabled: bool,
     read_only: bool,
     bordered: bool,
@@ -87,6 +88,7 @@ impl Input {
             appearance: true,
             cleanable: false,
             mask_toggle: false,
+            aria_label: None,
             disabled: false,
             read_only: false,
             bordered: true,
@@ -149,6 +151,12 @@ impl Input {
         self
     }
 
+    /// Set the accessible label for the input.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
+        self
+    }
+
     /// Set to disable the input field.
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
@@ -183,6 +191,11 @@ impl Input {
                 IconName::Eye
             } else {
                 IconName::EyeOff
+            })
+            .aria_label(if masked {
+                "Show password"
+            } else {
+                "Hide password"
             })
             .xsmall()
             .ghost()
@@ -268,6 +281,20 @@ impl RenderOnce for Input {
 
         let state = self.state.read(cx);
         let focused = state.focus_handle.is_focused(window) && !state.disabled;
+        let aria_role = if state.masked {
+            Role::PasswordInput
+        } else if state.mode.is_multi_line() {
+            Role::MultilineTextInput
+        } else {
+            Role::TextInput
+        };
+        let aria_label = self.aria_label.clone().or_else(|| {
+            if state.placeholder.is_empty() {
+                None
+            } else {
+                Some(state.placeholder.clone())
+            }
+        });
         let gap_x = match self.size {
             Size::Small => px(4.),
             Size::Large => px(8.),
@@ -292,6 +319,8 @@ impl RenderOnce for Input {
 
         div()
             .id(("input", self.state.entity_id()))
+            .role(aria_role)
+            .when_some(aria_label, |this, label| this.aria_label(label))
             .flex()
             .key_context(crate::input::CONTEXT)
             .track_focus(&state.focus_handle.clone())

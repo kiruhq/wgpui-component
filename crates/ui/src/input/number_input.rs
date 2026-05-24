@@ -1,17 +1,13 @@
-use gpui::{Window};
-use gpui::Corners;
 use crate::theme::ActiveTheme;
-use gpui::{
-    App, AnyElement, Context, Edges, Entity, EventEmitter, FocusHandle, Focusable,
-};
+use gpui::Corners;
+use gpui::Window;
+use gpui::{AnyElement, App, Context, Edges, Entity, EventEmitter, FocusHandle, Focusable};
 use gpui::{
     InteractiveElement, IntoElement, KeyBinding, ParentElement, RenderOnce, SharedString,
     StyleRefinement, Styled, TextAlign, actions, prelude::FluentBuilder as _,
 };
 
-use crate::{
-    Disableable, IconName, Sizable, Size, StyledExt as _, button::Button, h_flex,
-};
+use crate::{Disableable, IconName, Sizable, Size, StyledExt as _, button::Button, h_flex};
 
 use super::{Input, InputState};
 
@@ -33,6 +29,7 @@ pub struct NumberInput {
     size: Size,
     prefix: Option<AnyElement>,
     suffix: Option<AnyElement>,
+    aria_label: Option<SharedString>,
     appearance: bool,
     disabled: bool,
     style: StyleRefinement,
@@ -47,6 +44,7 @@ impl NumberInput {
             placeholder: SharedString::default(),
             prefix: None,
             suffix: None,
+            aria_label: None,
             appearance: true,
             disabled: false,
             style: StyleRefinement::default(),
@@ -56,6 +54,12 @@ impl NumberInput {
     /// Set the placeholder text of the number input.
     pub fn placeholder(mut self, placeholder: impl Into<SharedString>) -> Self {
         self.placeholder = placeholder.into();
+        self
+    }
+
+    /// Set the accessible label for the number input.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -148,6 +152,14 @@ impl Styled for NumberInput {
 
 impl RenderOnce for NumberInput {
     fn render(self, window: &mut Window, cx: &mut App) -> impl IntoElement {
+        let aria_label = self.aria_label.clone().or_else(|| {
+            if self.placeholder.is_empty() {
+                None
+            } else {
+                Some(self.placeholder.clone())
+            }
+        });
+
         h_flex()
             .id(("number-input", self.state.entity_id()))
             .key_context(CONTEXT)
@@ -162,6 +174,7 @@ impl RenderOnce for NumberInput {
                     .outline()
                     .with_size(self.size)
                     .icon(IconName::Minus)
+                    .aria_label("Decrement")
                     .compact()
                     .tab_stop(false)
                     .disabled(self.disabled)
@@ -190,6 +203,7 @@ impl RenderOnce for NumberInput {
                     .appearance(self.appearance)
                     .with_size(self.size)
                     .disabled(self.disabled)
+                    .when_some(aria_label, |this, label| this.aria_label(label))
                     .gap_0()
                     .rounded_none()
                     .text_align(TextAlign::Center)
@@ -201,6 +215,7 @@ impl RenderOnce for NumberInput {
                     .outline()
                     .with_size(self.size)
                     .icon(IconName::Plus)
+                    .aria_label("Increment")
                     .compact()
                     .tab_stop(false)
                     .disabled(self.disabled)
