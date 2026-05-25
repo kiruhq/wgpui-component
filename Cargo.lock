@@ -1276,7 +1276,7 @@ dependencies = [
 [[package]]
 name = "collections"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "indexmap",
  "rustc-hash 2.1.2",
@@ -1854,7 +1854,7 @@ dependencies = [
 [[package]]
 name = "derive_refineable"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3032,7 +3032,7 @@ dependencies = [
 [[package]]
 name = "gpui"
 version = "0.2.2"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "accesskit",
  "anyhow",
@@ -3271,7 +3271,7 @@ dependencies = [
 [[package]]
 name = "gpui_linux"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "accesskit",
  "accesskit_unix",
@@ -3322,7 +3322,7 @@ dependencies = [
 [[package]]
 name = "gpui_macos"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "accesskit",
  "accesskit_macos",
@@ -3364,7 +3364,7 @@ dependencies = [
 [[package]]
 name = "gpui_macros"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -3375,7 +3375,7 @@ dependencies = [
 [[package]]
 name = "gpui_platform"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "console_error_panic_hook",
  "gpui",
@@ -3388,7 +3388,7 @@ dependencies = [
 [[package]]
 name = "gpui_shared_string"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "schemars",
  "serde",
@@ -3398,7 +3398,7 @@ dependencies = [
 [[package]]
 name = "gpui_util"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "anyhow",
  "log",
@@ -3407,7 +3407,7 @@ dependencies = [
 [[package]]
 name = "gpui_web"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "anyhow",
  "console_error_panic_hook",
@@ -3431,7 +3431,7 @@ dependencies = [
 [[package]]
 name = "gpui_wgpu"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "anyhow",
  "bytemuck",
@@ -3460,7 +3460,7 @@ dependencies = [
 [[package]]
 name = "gpui_windows"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "accesskit",
  "accesskit_windows",
@@ -3776,7 +3776,7 @@ dependencies = [
 [[package]]
 name = "http_client"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "anyhow",
  "async-compression",
@@ -3801,7 +3801,7 @@ dependencies = [
 [[package]]
 name = "http_client_tls"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "rustls",
  "rustls-platform-verifier",
@@ -4802,7 +4802,7 @@ dependencies = [
 [[package]]
 name = "media"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "anyhow",
  "bindgen",
@@ -5702,7 +5702,7 @@ checksum = "9b4f627cb1b25917193a259e49bdad08f671f8d9708acfd5fe0a8c1455d87220"
 [[package]]
 name = "perf"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "collections",
  "serde",
@@ -6715,7 +6715,7 @@ dependencies = [
 [[package]]
 name = "refineable"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "derive_refineable",
 ]
@@ -6767,7 +6767,7 @@ checksum = "19b30a45b0cd0bcca8037f3d0dc3421eaf95327a17cad11964fb8179b4fc4832"
 [[package]]
 name = "reqwest_client"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "anyhow",
  "bytes",
@@ -7172,7 +7172,7 @@ dependencies = [
 [[package]]
 name = "scheduler"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "async-task",
  "backtrace",
@@ -7806,7 +7806,7 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "sum_tree"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "heapless",
  "log",
@@ -9225,7 +9225,7 @@ checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
 [[package]]
 name = "util"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "anyhow",
  "async-fs",
@@ -9264,7 +9264,7 @@ dependencies = [
 [[package]]
 name = "util_macros"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "perf",
  "quote",
@@ -11183,7 +11183,7 @@ dependencies = [
 [[package]]
 name = "zlog"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "anyhow",
  "chrono",
@@ -11200,7 +11200,7 @@ checksum = "b8848ee67ecc8aedbaf3e4122217aff892639231befc6a1b58d29fff4c2cabaa"
 [[package]]
 name = "ztracing"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 dependencies = [
  "tracing",
  "tracing-subscriber",
@@ -11211,7 +11211,7 @@ dependencies = [
 [[package]]
 name = "ztracing_macro"
 version = "0.1.0"
-source = "git+https://github.com/kiruhq/wgpui.git?rev=91d40d1000bd18429262290ccae13aeefadd664f#91d40d1000bd18429262290ccae13aeefadd664f"
+source = "git+https://github.com/kiruhq/wgpui.git?rev=e5b949550a1eeed8a5857d57176791830409c007#e5b949550a1eeed8a5857d57176791830409c007"
 
 [[package]]
 name = "zune-core"
