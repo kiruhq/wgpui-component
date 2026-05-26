@@ -1,8 +1,9 @@
 use gpui::{
-    Anchor, AnyElement, App, Bounds, Context, Deferred, DismissEvent, Div, ElementId,
-    EventEmitter, FocusHandle, Focusable, InteractiveElement as _, IntoElement, KeyBinding,
-    MouseButton, ParentElement, Pixels, Point, Render, RenderOnce, Stateful, StyleRefinement,
-    Styled, Subscription, Window, anchored, deferred, div, prelude::FluentBuilder as _, px,
+    Anchor, AnyElement, App, Bounds, Context, Deferred, DismissEvent, Div, ElementId, EventEmitter,
+    FocusHandle, Focusable, InteractiveElement as _, IntoElement, KeyBinding, MouseButton,
+    ParentElement, Pixels, Point, Render, RenderOnce, Role, SharedString, Stateful,
+    StyleRefinement, Styled, Subscription, Window, anchored, deferred, div,
+    prelude::FluentBuilder as _, px,
 };
 use std::{cell::Cell, rc::Rc};
 
@@ -37,6 +38,8 @@ pub struct Popover {
     trigger_style: Option<StyleRefinement>,
     mouse_button: MouseButton,
     appearance: bool,
+    aria_role: Option<Role>,
+    aria_label: Option<SharedString>,
     overlay_closable: bool,
     on_open_change: Option<Rc<dyn Fn(&bool, &mut Window, &mut App)>>,
 }
@@ -55,6 +58,8 @@ impl Popover {
             children: vec![],
             mouse_button: MouseButton::Left,
             appearance: true,
+            aria_role: None,
+            aria_label: None,
             overlay_closable: true,
             default_open: false,
             open: None,
@@ -157,6 +162,18 @@ impl Popover {
     /// - The click out of the popover will not dismiss it.
     pub fn appearance(mut self, appearance: bool) -> Self {
         self.appearance = appearance;
+        self
+    }
+
+    /// Set the accessible role for the popover content.
+    pub fn aria_role(mut self, role: Role) -> Self {
+        self.aria_role = Some(role);
+        self
+    }
+
+    /// Set the accessible label for the popover content.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -438,6 +455,8 @@ impl RenderOnce for Popover {
 
         let popover_content =
             Self::render_popover_content(self.anchor, self.appearance, window, cx)
+                .when_some(self.aria_role, |this, role| this.role(role))
+                .when_some(self.aria_label, |this, label| this.aria_label(label))
                 .track_focus(&focus_handle)
                 .key_context(CONTEXT)
                 .on_action(window.listener_for(&state, PopoverState::on_action_cancel))

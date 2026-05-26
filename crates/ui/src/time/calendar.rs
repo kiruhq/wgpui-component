@@ -3,9 +3,9 @@ use std::{borrow::Cow, rc::Rc};
 use chrono::{Datelike, Local, NaiveDate};
 use gpui::{
     App, ClickEvent, Context, Div, ElementId, Empty, Entity, EventEmitter, FocusHandle,
-    InteractiveElement, IntoElement, ParentElement, Render, RenderOnce, SharedString, Stateful,
-    StatefulInteractiveElement, StyleRefinement, Styled, Window, prelude::FluentBuilder as _, px,
-    relative,
+    InteractiveElement, IntoElement, ParentElement, Render, RenderOnce, Role, SharedString,
+    Stateful, StatefulInteractiveElement, StyleRefinement, Styled, Window,
+    prelude::FluentBuilder as _, px, relative,
 };
 use rust_i18n::t;
 
@@ -581,6 +581,7 @@ impl Calendar {
             window,
             cx,
         )
+        .aria_label(date.to_string())
         .when(is_today && !is_active, |this| {
             this.border_1().border_color(cx.theme().border)
         }) // Add border for today
@@ -639,6 +640,7 @@ impl Calendar {
             .child(
                 Button::new("prev")
                     .icon(IconName::ArrowLeft)
+                    .aria_label("Previous")
                     .tab_stop(false)
                     .ghost()
                     .disabled(disabled)
@@ -718,6 +720,7 @@ impl Calendar {
             .child(
                 Button::new("next")
                     .icon(IconName::ArrowRight)
+                    .aria_label("Next")
                     .ghost()
                     .tab_stop(false)
                     .disabled(disabled)
@@ -748,6 +751,8 @@ impl Calendar {
     ) -> Stateful<Div> {
         h_flex()
             .id(id.into())
+            .role(Role::Button)
+            .aria_selected(active)
             .map(|this| match self.size {
                 Size::Small => this.size_7().rounded(cx.theme().radius / 2.),
                 Size::Large => this.size_10().rounded(cx.theme().radius * 2.),
@@ -959,6 +964,8 @@ impl RenderOnce for Calendar {
 
         v_flex()
             .id(self.id.clone())
+            .role(Role::Group)
+            .aria_label("Calendar")
             .track_focus(&self.state.read(cx).focus_handle)
             .border_1()
             .border_color(cx.theme().border)

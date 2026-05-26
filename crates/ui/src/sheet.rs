@@ -3,8 +3,8 @@ use std::{rc::Rc, time::Duration};
 use gpui::{
     Animation, AnimationExt as _, AnyElement, App, ClickEvent, DefiniteLength, DismissEvent, Edges,
     EventEmitter, FocusHandle, InteractiveElement as _, IntoElement, KeyBinding, MouseButton,
-    ParentElement, Pixels, RenderOnce, StyleRefinement, Styled, Window, WindowControlArea,
-    anchored, div, point, prelude::FluentBuilder as _, px,
+    ParentElement, Pixels, RenderOnce, Role, SharedString, StyleRefinement, Styled, Window,
+    WindowControlArea, anchored, div, point, prelude::FluentBuilder as _, px,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -50,6 +50,7 @@ pub struct Sheet {
     resizable: bool,
     on_close: Rc<dyn Fn(&ClickEvent, &mut Window, &mut App) + 'static>,
     title: Option<AnyElement>,
+    aria_label: Option<SharedString>,
     footer: Option<AnyElement>,
     style: StyleRefinement,
     children: Vec<AnyElement>,
@@ -66,6 +67,7 @@ impl Sheet {
             size: DefiniteLength::Absolute(px(350.).into()),
             resizable: true,
             title: None,
+            aria_label: None,
             footer: None,
             style: StyleRefinement::default(),
             children: Vec::new(),
@@ -78,6 +80,12 @@ impl Sheet {
     /// Sets the title of the sheet.
     pub fn title(mut self, title: impl IntoElement) -> Self {
         self.title = Some(title.into_any_element());
+        self
+    }
+
+    /// Set the accessible label for the sheet dialog.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -190,6 +198,8 @@ impl RenderOnce for Sheet {
                     .child(
                         v_flex()
                             .id("sheet")
+                            .role(Role::Dialog)
+                            .when_some(self.aria_label, |this, label| this.aria_label(label))
                             .key_context(CONTEXT)
                             .track_focus(&self.focus_handle)
                             .focus_trap("sheet", &self.focus_handle)
@@ -239,6 +249,7 @@ impl RenderOnce for Sheet {
                                             .small()
                                             .ghost()
                                             .icon(IconName::Close)
+                                            .aria_label("Close")
                                             .on_click(move |_, window, cx| {
                                                 window.close_sheet(cx);
                                                 on_close(&ClickEvent::default(), window, cx);

@@ -2,12 +2,14 @@ use std::rc::Rc;
 
 use gpui::{
     App, ClickEvent, ElementId, Empty, Hsla, InteractiveElement, IntoElement, ParentElement as _,
-    RenderOnce, SharedString, StatefulInteractiveElement, StyleRefinement, Styled, Window, div,
+    RenderOnce, Role, SharedString, StyleRefinement, Styled, Window, div,
     prelude::FluentBuilder as _, px, rems, transparent_white,
 };
 
 use crate::{
-    ActiveTheme as _, Colorize, Icon, IconName, Sizable, Size, StyledExt, h_flex,
+    ActiveTheme as _, Colorize, Icon, IconName, Sizable, Size, StyledExt,
+    button::{Button, ButtonVariants as _},
+    h_flex,
     text::{Text, TextViewStyle},
 };
 
@@ -189,6 +191,7 @@ impl RenderOnce for Alert {
 
         h_flex()
             .id(self.id)
+            .role(Role::Alert)
             .w_full()
             .text_color(fg)
             .bg(bg)
@@ -233,20 +236,15 @@ impl RenderOnce for Alert {
             )
             .when_some(self.on_close, |this, on_close| {
                 this.child(
-                    div()
-                        .id("close")
-                        .p_0p5()
-                        .rounded(cx.theme().radius)
-                        .hover(|this| this.bg(bg.opacity(0.8)))
-                        .active(|this| this.bg(bg.opacity(0.9)))
+                    Button::new("close")
+                        .ghost()
+                        .compact()
+                        .with_size(self.size.max(Size::Medium))
+                        .icon(IconName::Close)
+                        .aria_label("Close alert")
                         .on_click(move |ev, window, cx| {
                             on_close(ev, window, cx);
-                        })
-                        .child(
-                            Icon::new(IconName::Close)
-                                .with_size(self.size.max(Size::Medium))
-                                .flex_shrink_0(),
-                        ),
+                        }),
                 )
             })
             .into_any_element()

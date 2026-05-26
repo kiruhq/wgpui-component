@@ -4,8 +4,8 @@ use chrono::NaiveDate;
 use gpui::{
     App, AppContext, ClickEvent, Context, ElementId, Empty, Entity, EventEmitter, FocusHandle,
     Focusable, InteractiveElement as _, IntoElement, KeyBinding, MouseButton, ParentElement as _,
-    Render, RenderOnce, SharedString, StatefulInteractiveElement as _, StyleRefinement, Styled,
-    Subscription, Window, anchored, deferred, div, prelude::FluentBuilder as _, px,
+    Render, RenderOnce, Role, SharedString, StatefulInteractiveElement as _, StyleRefinement,
+    Styled, Subscription, Window, anchored, deferred, div, prelude::FluentBuilder as _, px,
 };
 use rust_i18n::t;
 
@@ -273,6 +273,7 @@ pub struct DatePicker {
     state: Entity<DatePickerState>,
     cleanable: bool,
     placeholder: Option<SharedString>,
+    aria_label: Option<SharedString>,
     size: Size,
     number_of_months: usize,
     presets: Option<Vec<DateRangePreset>>,
@@ -319,6 +320,7 @@ impl DatePicker {
             state: state.clone(),
             cleanable: false,
             placeholder: None,
+            aria_label: None,
             size: Size::default(),
             style: StyleRefinement::default(),
             number_of_months: 2,
@@ -331,6 +333,12 @@ impl DatePicker {
     /// Set the placeholder of the date picker, default: "".
     pub fn placeholder(mut self, placeholder: impl Into<SharedString>) -> Self {
         self.placeholder = Some(placeholder.into());
+        self
+    }
+
+    /// Set the accessible label for the date picker input.
+    pub fn aria_label(mut self, label: impl Into<SharedString>) -> Self {
+        self.aria_label = Some(label.into());
         self
     }
 
@@ -377,6 +385,7 @@ impl RenderOnce for DatePicker {
             .date
             .format(&state.date_format)
             .unwrap_or(placeholder.clone());
+        let aria_label = self.aria_label.clone().unwrap_or(placeholder.clone());
 
         let (bg, fg) = input_style(self.disabled, cx);
 
@@ -397,6 +406,9 @@ impl RenderOnce for DatePicker {
             .child(
                 div()
                     .id("date-picker-input")
+                    .role(Role::DateInput)
+                    .aria_label(aria_label)
+                    .aria_expanded(state.open)
                     .relative()
                     .flex()
                     .items_center()

@@ -1,8 +1,9 @@
 use gpui::{
     Anchor, App, AppContext, Context, Div, ElementId, Entity, EventEmitter, FocusHandle, Focusable,
     Hsla, InteractiveElement as _, IntoElement, KeyBinding, ParentElement, Render, RenderOnce,
-    SharedString, Stateful, StatefulInteractiveElement as _, StyleRefinement, Styled, Subscription,
-    TextAlign, Window, div, hsla, linear_color_stop, linear_gradient, prelude::FluentBuilder as _,
+    Role, SharedString, Stateful, StatefulInteractiveElement as _, StyleRefinement, Styled,
+    Subscription, TextAlign, Window, div, hsla, linear_color_stop, linear_gradient,
+    prelude::FluentBuilder as _,
 };
 use rust_i18n::t;
 
@@ -398,6 +399,9 @@ impl ColorPicker {
         let state = self.state.clone();
         div()
             .id(SharedString::from(format!("color-{}", color.to_hex())))
+            .when(clickable, |this| {
+                this.role(Role::Button).aria_label(color.to_hex())
+            })
             .h_5()
             .w_5()
             .bg(color)
@@ -573,6 +577,7 @@ impl ColorPicker {
                             .child(self.render_slider_track(hue_colors, cx))
                             .child(
                                 Slider::new(&hsla_sliders.hue)
+                                    .aria_label(t!("ColorPicker.Hue"))
                                     .flex_1()
                                     .bg(cx.theme().transparent),
                             ),
@@ -611,6 +616,7 @@ impl ColorPicker {
                             ))
                             .child(
                                 Slider::new(&hsla_sliders.saturation)
+                                    .aria_label(t!("ColorPicker.Saturation"))
                                     .flex_1()
                                     .bg(cx.theme().transparent),
                             ),
@@ -645,6 +651,7 @@ impl ColorPicker {
                             .child(self.render_slider_track(lightness_colors, cx))
                             .child(
                                 Slider::new(&hsla_sliders.lightness)
+                                    .aria_label(t!("ColorPicker.Lightness"))
                                     .flex_1()
                                     .bg(cx.theme().transparent),
                             ),
@@ -679,6 +686,7 @@ impl ColorPicker {
                             .child(self.render_slider_track_gradient(alpha_start, alpha_end, cx))
                             .child(
                                 Slider::new(&hsla_sliders.alpha)
+                                    .aria_label(t!("ColorPicker.Alpha"))
                                     .flex_1()
                                     .bg(cx.theme().transparent),
                             ),
@@ -762,6 +770,8 @@ impl RenderOnce for ColorPicker {
             .child(
                 Popover::new("popover")
                     .open(state.open)
+                    .aria_role(Role::Dialog)
+                    .aria_label("Color picker")
                     .w_72()
                     .on_open_change(
                         window.listener_for(&self.state, |this, open: &bool, _, cx| {
@@ -819,8 +829,16 @@ impl Sizable for ColorPickerButton {
 impl RenderOnce for ColorPickerButton {
     fn render(self, _: &mut Window, cx: &mut App) -> impl IntoElement {
         let has_icon = self.icon.is_some();
+        let aria_label = self
+            .label
+            .clone()
+            .or_else(|| self.tooltip.clone())
+            .unwrap_or_else(|| "Color picker".into());
+
         h_flex()
             .id(self.id)
+            .role(Role::ColorWell)
+            .aria_label(aria_label)
             .gap_2()
             .children(self.icon)
             .when(!has_icon, |this| {

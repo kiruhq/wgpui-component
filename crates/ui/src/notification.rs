@@ -8,8 +8,8 @@ use std::{
 use gpui::{
     Anchor, Animation, AnimationExt, AnyElement, App, AppContext, ClickEvent, Context,
     DismissEvent, ElementId, Entity, EventEmitter, InteractiveElement as _, IntoElement,
-    ParentElement as _, Pixels, Render, SharedString, StatefulInteractiveElement, StyleRefinement,
-    Styled, Subscription, Window, div, prelude::FluentBuilder, px,
+    ParentElement as _, Pixels, Render, Role, SharedString, StatefulInteractiveElement,
+    StyleRefinement, Styled, Subscription, Window, div, prelude::FluentBuilder, px,
 };
 
 use crate::{
@@ -304,9 +304,14 @@ impl Render for Notification {
         };
         let has_icon = icon.is_some();
         let placement = cx.theme().notification.placement;
+        let aria_role = match self.type_ {
+            Some(NotificationType::Warning | NotificationType::Error) => Role::Alert,
+            _ => Role::Status,
+        };
 
         h_flex()
             .id("notification")
+            .role(aria_role)
             .group("")
             .occlude()
             .relative()
@@ -349,6 +354,7 @@ impl Render for Notification {
                             .icon(IconName::Close)
                             .ghost()
                             .xsmall()
+                            .aria_label("Dismiss notification")
                             .on_click(cx.listener(|this, _, window, cx| this.dismiss(window, cx))),
                     ),
             )

@@ -2,7 +2,7 @@ use std::{cell::RefCell, ops::Range, rc::Rc};
 
 use gpui::{
     App, Context, ElementId, Entity, FocusHandle, InteractiveElement as _, IntoElement, KeyBinding,
-    ListSizingBehavior, MouseButton, ParentElement, Render, RenderOnce, SharedString,
+    ListSizingBehavior, MouseButton, ParentElement, Render, RenderOnce, Role, SharedString,
     StyleRefinement, Styled, UniformListScrollHandle, Window, div, prelude::FluentBuilder as _,
     uniform_list,
 };
@@ -469,6 +469,13 @@ impl Render for TreeState {
 
                             let el = div()
                                 .id(ix)
+                                .role(Role::TreeItem)
+                                .aria_label(entry.item().label.clone())
+                                .aria_selected(selected)
+                                .aria_level(entry.depth() + 1)
+                                .when(entry.is_folder(), |this| {
+                                    this.aria_expanded(entry.is_expanded())
+                                })
                                 .child(
                                     item.disabled(entry.item().is_disabled())
                                         .selected(selected)
@@ -569,6 +576,7 @@ impl RenderOnce for Tree {
 
         div()
             .id(self.id)
+            .role(Role::Tree)
             .key_context(CONTEXT)
             .track_focus(&focus_handle)
             .on_action(window.listener_for(&self.state, TreeState::on_action_confirm))
