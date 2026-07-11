@@ -30,12 +30,12 @@ gpui-component-macros = { path = "crates/macros", version = "0.5.1" }
 gpui-component-assets = { path = "crates/assets", version = "0.5.1" }
 story = { path = "crates/story" }
 
-gpui = { git = "https://github.com/kiruhq/wgpui.git", rev = "a44dd7e580442f825017dc1a222908f457b49c6f" }
-gpui_platform = { git = "https://github.com/kiruhq/wgpui.git", rev = "a44dd7e580442f825017dc1a222908f457b49c6f", features = ["font-kit", "x11", "wayland", "runtime_shaders"] }
-gpui_web = { git = "https://github.com/kiruhq/wgpui.git", rev = "a44dd7e580442f825017dc1a222908f457b49c6f" }
-gpui_macros = { git = "https://github.com/kiruhq/wgpui.git", rev = "a44dd7e580442f825017dc1a222908f457b49c6f" }
-reqwest_client = { git = "https://github.com/kiruhq/wgpui.git", rev = "a44dd7e580442f825017dc1a222908f457b49c6f" }
-sum-tree = { git = "https://github.com/kiruhq/wgpui.git", rev = "a44dd7e580442f825017dc1a222908f457b49c6f", package = "sum_tree" }
+gpui = { git = "https://github.com/kiruhq/wgpui.git", rev = "eaf1cb562baa2af8dfa7204424a968aa718dde67" }
+gpui_platform = { git = "https://github.com/kiruhq/wgpui.git", rev = "eaf1cb562baa2af8dfa7204424a968aa718dde67", features = ["font-kit", "x11", "wayland", "runtime_shaders"] }
+gpui_web = { git = "https://github.com/kiruhq/wgpui.git", rev = "eaf1cb562baa2af8dfa7204424a968aa718dde67" }
+gpui_macros = { git = "https://github.com/kiruhq/wgpui.git", rev = "eaf1cb562baa2af8dfa7204424a968aa718dde67" }
+reqwest_client = { git = "https://github.com/kiruhq/wgpui.git", rev = "eaf1cb562baa2af8dfa7204424a968aa718dde67" }
+sum-tree = { git = "https://github.com/kiruhq/wgpui.git", rev = "eaf1cb562baa2af8dfa7204424a968aa718dde67", package = "sum_tree" }
 # reqwest = { version = "0.12.15-zed", package = "zed-reqwest" }
 reqwest = { git = "https://github.com/zed-industries/reqwest.git", rev = "c15662463bda39148ba154100dd44d3fba5873a4", default-features = false, features = [
     "charset",
