@@ -200,6 +200,7 @@ where
                                 .delegate
                                 .on_confirm(&new_selection);
                         }
+                        list_state.set_query("", window, cx);
                     }
                 });
             },
@@ -215,6 +216,7 @@ where
                             });
 
                         list_state.set_selected_index(committed_ix, window, cx);
+                        list_state.set_query("", window, cx);
 
                         _ = weak_cancel.update(cx, |this, cx| {
                             this.set_open(false, cx);
@@ -343,12 +345,14 @@ where
             });
         }
 
+        self.clear_search(window, cx);
         self.set_open(false, cx);
         cx.notify();
     }
 
     fn up(&mut self, _: &SelectUp, window: &mut Window, cx: &mut Context<Self>) {
         if !self.state.open {
+            self.center_selected_item(window, cx);
             self.set_open(true, cx);
         }
 
@@ -358,6 +362,7 @@ where
 
     fn down(&mut self, _: &SelectDown, window: &mut Window, cx: &mut Context<Self>) {
         if !self.state.open {
+            self.center_selected_item(window, cx);
             self.set_open(true, cx);
         }
 
@@ -369,6 +374,7 @@ where
         cx.propagate();
 
         if !self.state.open {
+            self.center_selected_item(window, cx);
             self.set_open(true, cx);
             cx.notify();
         }
@@ -379,7 +385,13 @@ where
     fn toggle_menu(&mut self, _: &ClickEvent, window: &mut Window, cx: &mut Context<Self>) {
         cx.stop_propagation();
 
-        self.set_open(!self.state.open, cx);
+        if self.state.open {
+            self.clear_search(window, cx);
+            self.set_open(false, cx);
+        } else {
+            self.center_selected_item(window, cx);
+            self.set_open(true, cx);
+        }
 
         if self.state.open {
             self.state.list.focus_handle(cx).focus(window, cx);
@@ -395,6 +407,7 @@ where
         }
 
         cx.stop_propagation();
+        self.clear_search(window, cx);
         self.set_open(false, cx);
         self.focus(window, cx);
         cx.notify();
@@ -410,6 +423,26 @@ where
         }
 
         cx.notify();
+    }
+
+    fn clear_search(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if !self.searchable {
+            return;
+        }
+
+        self.state.list.update(cx, |list, cx| {
+            list.set_query("", window, cx);
+        });
+    }
+
+    fn center_selected_item(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(selected_index) = self.selected_index(cx) else {
+            return;
+        };
+
+        self.state.list.update(cx, |list, cx| {
+            list.scroll_to_item(selected_index, gpui::ScrollStrategy::Center, window, cx);
+        });
     }
 
     fn clean(&mut self, _: &ClickEvent, window: &mut Window, cx: &mut Context<Self>) {
