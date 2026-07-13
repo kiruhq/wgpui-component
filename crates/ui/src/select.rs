@@ -187,7 +187,7 @@ where
 
                             cx.emit(SelectEvent::Confirm(final_value));
                             cx.notify();
-                            this.set_open(false, window, cx);
+                            this.set_open(false, cx);
                             this.focus(window, cx);
 
                             this.state.selection.clone()
@@ -203,6 +203,7 @@ where
                                 .delegate
                                 .on_confirm(&new_selection);
                         }
+                        list_state.set_query("", window, cx);
                     }
                 });
             },
@@ -218,8 +219,10 @@ where
                             });
 
                         list_state.set_selected_index(committed_ix, window, cx);
+                        list_state.set_query("", window, cx);
+
                         _ = weak_cancel.update(cx, |this, cx| {
-                            this.set_open(false, window, cx);
+                            this.set_open(false, cx);
                             this.focus(window, cx);
                         });
                     }
@@ -346,14 +349,15 @@ where
             });
         }
 
-        self.set_open(false, window, cx);
+        self.clear_search(window, cx);
+        self.set_open(false, cx);
         cx.notify();
     }
 
     fn up(&mut self, _: &SelectUp, window: &mut Window, cx: &mut Context<Self>) {
         if !self.state.open {
             self.scroll_selected_item(window, cx);
-            self.set_open(true, window, cx);
+            self.set_open(true, cx);
         }
 
         self.state.list.focus_handle(cx).focus(window, cx);
@@ -363,7 +367,7 @@ where
     fn down(&mut self, _: &SelectDown, window: &mut Window, cx: &mut Context<Self>) {
         if !self.state.open {
             self.scroll_selected_item(window, cx);
-            self.set_open(true, window, cx);
+            self.set_open(true, cx);
         }
 
         self.state.list.focus_handle(cx).focus(window, cx);
@@ -375,7 +379,7 @@ where
 
         if !self.state.open {
             self.scroll_selected_item(window, cx);
-            self.set_open(true, window, cx);
+            self.set_open(true, cx);
             cx.notify();
         }
 
@@ -386,10 +390,11 @@ where
         cx.stop_propagation();
 
         if self.state.open {
-            self.set_open(false, window, cx);
+            self.clear_search(window, cx);
+            self.set_open(false, cx);
         } else {
             self.scroll_selected_item(window, cx);
-            self.set_open(true, window, cx);
+            self.set_open(true, cx);
         }
 
         if self.state.open {
@@ -406,16 +411,13 @@ where
         }
 
         cx.stop_propagation();
-        self.set_open(false, window, cx);
+        self.clear_search(window, cx);
+        self.set_open(false, cx);
         self.focus(window, cx);
         cx.notify();
     }
 
-    fn set_open(&mut self, open: bool, window: &mut Window, cx: &mut Context<Self>) {
-        if !open {
-            self.clear_search(window, cx);
-        }
-
+    fn set_open(&mut self, open: bool, cx: &mut Context<Self>) {
         self.state.open = open;
 
         if self.state.open {
