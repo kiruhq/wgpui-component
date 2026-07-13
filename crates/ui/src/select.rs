@@ -1,8 +1,8 @@
 use gpui::{
     AnyElement, App, ClickEvent, Context, DismissEvent, Edges, ElementId, Entity, EventEmitter,
     FocusHandle, Focusable, InteractiveElement, IntoElement, KeyBinding, Length, ParentElement,
-    Render, RenderOnce, Role, SharedString, StatefulInteractiveElement, StyleRefinement, Styled,
-    Window, anchored, deferred, div, prelude::FluentBuilder, px, rems,
+    Render, RenderOnce, Role, ScrollStrategy, SharedString, StatefulInteractiveElement,
+    StyleRefinement, Styled, Window, anchored, deferred, div, prelude::FluentBuilder, px, rems,
 };
 use rust_i18n::t;
 
@@ -70,6 +70,7 @@ struct SelectOptions {
     search_placeholder: Option<SharedString>,
     menu_width: Length,
     menu_max_h: Length,
+    selected_scroll_strategy: Option<ScrollStrategy>,
     disabled: bool,
     appearance: bool,
 }
@@ -86,6 +87,7 @@ impl Default for SelectOptions {
             title_prefix: None,
             menu_width: Length::Auto,
             menu_max_h: rems(20.).into(),
+            selected_scroll_strategy: None,
             disabled: false,
             appearance: true,
             search_placeholder: None,
@@ -107,6 +109,7 @@ where
     icon: Option<Icon>,
     aria_label: Option<SharedString>,
     title_prefix: Option<SharedString>,
+    selected_scroll_strategy: Option<ScrollStrategy>,
 }
 
 /// A Select element.
@@ -252,6 +255,7 @@ where
             icon: None,
             aria_label: None,
             title_prefix: None,
+            selected_scroll_strategy: None,
         }
     }
 
@@ -352,7 +356,7 @@ where
 
     fn up(&mut self, _: &SelectUp, window: &mut Window, cx: &mut Context<Self>) {
         if !self.state.open {
-            self.center_selected_item(window, cx);
+            self.scroll_selected_item(window, cx);
             self.set_open(true, cx);
         }
 
@@ -362,7 +366,7 @@ where
 
     fn down(&mut self, _: &SelectDown, window: &mut Window, cx: &mut Context<Self>) {
         if !self.state.open {
-            self.center_selected_item(window, cx);
+            self.scroll_selected_item(window, cx);
             self.set_open(true, cx);
         }
 
@@ -374,7 +378,7 @@ where
         cx.propagate();
 
         if !self.state.open {
-            self.center_selected_item(window, cx);
+            self.scroll_selected_item(window, cx);
             self.set_open(true, cx);
             cx.notify();
         }
@@ -389,7 +393,7 @@ where
             self.clear_search(window, cx);
             self.set_open(false, cx);
         } else {
-            self.center_selected_item(window, cx);
+            self.scroll_selected_item(window, cx);
             self.set_open(true, cx);
         }
 
@@ -435,13 +439,16 @@ where
         });
     }
 
-    fn center_selected_item(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    fn scroll_selected_item(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(strategy) = self.selected_scroll_strategy else {
+            return;
+        };
         let Some(selected_index) = self.selected_index(cx) else {
             return;
         };
 
         self.state.list.update(cx, |list, cx| {
-            list.scroll_to_item(selected_index, gpui::ScrollStrategy::Center, window, cx);
+            list.scroll_to_item(selected_index, strategy, window, cx);
         });
     }
 
@@ -665,6 +672,13 @@ where
         self
     }
 
+    /// Scroll the selected item into view with the given strategy when opening the menu.
+    /// By default, opening the menu does not change its scroll position.
+    pub fn selected_scroll_strategy(mut self, strategy: ScrollStrategy) -> Self {
+        self.options.selected_scroll_strategy = Some(strategy);
+        self
+    }
+
     /// Set the placeholder shown when no value is selected.
     pub fn placeholder(mut self, placeholder: impl Into<SharedString>) -> Self {
         self.options.placeholder = Some(placeholder.into());
@@ -794,6 +808,7 @@ where
             this.state.search_placeholder = opts.search_placeholder;
             this.state.menu_width = opts.menu_width;
             this.state.menu_max_h = opts.menu_max_h;
+            this.selected_scroll_strategy = opts.selected_scroll_strategy;
             this.state.disabled = opts.disabled;
             this.state.appearance = opts.appearance;
             this.icon = opts.icon;
