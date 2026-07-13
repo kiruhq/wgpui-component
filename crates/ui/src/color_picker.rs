@@ -8,7 +8,7 @@ use gpui::{
 use rust_i18n::t;
 
 use crate::{
-    ActiveTheme as _, Colorize as _, Icon, Selectable, Sizable, Size, StyleSized,
+    ActiveTheme as _, Colorize as _, Icon, Selectable, Sizable, Size, StyleSized, StyledExt as _,
     actions::Confirm,
     h_flex,
     input::{Input, InputEvent, InputState},
@@ -761,6 +761,7 @@ impl RenderOnce for ColorPicker {
         .into();
 
         let focus_handle = state.focus_handle.clone().tab_stop(true);
+        let trigger_style = self.style.clone();
 
         div()
             .id(self.id.clone())
@@ -781,6 +782,7 @@ impl RenderOnce for ColorPicker {
                     )
                     .trigger(ColorPickerButton {
                         id: "trigger".into(),
+                        style: trigger_style,
                         size: self.size,
                         label: self.label.clone(),
                         value: state.value,
@@ -800,6 +802,7 @@ impl RenderOnce for ColorPicker {
 #[derive(IntoElement)]
 struct ColorPickerButton {
     id: ElementId,
+    style: StyleRefinement,
     selected: bool,
     icon: Option<Icon>,
     value: Option<Hsla>,
@@ -852,6 +855,7 @@ impl RenderOnce for ColorPickerButton {
                         .rounded(cx.theme().radius)
                         .overflow_hidden()
                         .size_with(self.size)
+                        .refine_style(&self.style)
                         .when_some(self.value, |this, value| {
                             this.bg(value)
                                 .border_color(value.darken(0.3))
