@@ -54,6 +54,10 @@ pub struct TextViewState {
     pub(super) code_block_actions: Option<std::sync::Arc<CodeBlockActionsFn>>,
 
     pub(super) is_selecting: bool,
+    line_selection: bool,
+    line_selection_position: Option<Point<Pixels>>,
+    word_selection: bool,
+    word_selection_position: Option<Point<Pixels>>,
     /// The local (in TextView) position of the selection.
     selection_positions: (Option<Point<Pixels>>, Option<Point<Pixels>>),
 
@@ -114,6 +118,10 @@ impl TextViewState {
             text_view_style: TextViewStyle::default(),
             code_block_actions: None,
             is_selecting: false,
+            line_selection: false,
+            line_selection_position: None,
+            word_selection: false,
+            word_selection_position: None,
             parsed_content: Default::default(),
             parsed_error: None,
             text: text.to_string(),
@@ -177,7 +185,11 @@ impl TextViewState {
 
     /// Return the selected text.
     pub fn selected_text(&self) -> String {
-        self.parsed_content.document.selected_text()
+        let mut text = self.parsed_content.document.selected_text();
+        if (self.line_selection || self.word_selection) && text.ends_with('\n') {
+            text.pop();
+        }
+        text
     }
 
     fn increment_update(&mut self, text: &str, append: bool, cx: &mut Context<Self>) {
@@ -201,6 +213,10 @@ impl TextViewState {
     pub(super) fn clear_selection(&mut self) {
         self.selection_positions = (None, None);
         self.is_selecting = false;
+        self.line_selection = false;
+        self.line_selection_position = None;
+        self.word_selection = false;
+        self.word_selection_position = None;
     }
 
     pub(super) fn start_selection(&mut self, pos: Point<Pixels>) {
@@ -213,6 +229,47 @@ impl TextViewState {
         let pos = pos - self.bounds.origin - scroll_offset;
         self.selection_positions = (Some(pos), Some(pos));
         self.is_selecting = true;
+        self.line_selection = false;
+        self.line_selection_position = None;
+        self.word_selection = false;
+        self.word_selection_position = None;
+    }
+
+    pub(super) fn select_word_at(&mut self, pos: Point<Pixels>) {
+        let scroll_offset = if self.scrollable {
+            self.list_state.scroll_px_offset_for_scrollbar()
+        } else {
+            Point::default()
+        };
+        let content_position = pos - self.bounds.origin - scroll_offset;
+        self.selection_positions = (
+            Some(content_position),
+            Some(Point::new(content_position.x + px(1.), content_position.y)),
+        );
+        self.is_selecting = false;
+        self.line_selection = false;
+        self.line_selection_position = None;
+        self.word_selection = true;
+        self.word_selection_position = Some(pos);
+    }
+
+    pub(super) fn select_line_at(&mut self, pos: Point<Pixels>) {
+        let window_position = pos;
+        let scroll_offset = if self.scrollable {
+            self.list_state.scroll_px_offset_for_scrollbar()
+        } else {
+            Point::default()
+        };
+        let pos = pos - self.bounds.origin - scroll_offset;
+        self.selection_positions = (
+            Some(Point::new(Pixels::ZERO, pos.y)),
+            Some(Point::new(self.bounds.size.width, pos.y)),
+        );
+        self.is_selecting = false;
+        self.line_selection = true;
+        self.line_selection_position = Some(window_position);
+        self.word_selection = false;
+        self.word_selection_position = None;
     }
 
     pub(super) fn update_selection(&mut self, pos: Point<Pixels>) {
@@ -266,6 +323,14 @@ impl TextViewState {
 
     pub(crate) fn is_selectable(&self) -> bool {
         self.selectable
+    }
+
+    pub(crate) fn line_selection_position(&self) -> Option<Point<Pixels>> {
+        self.line_selection_position
+    }
+
+    pub(crate) fn word_selection_position(&self) -> Option<Point<Pixels>> {
+        self.word_selection_position
     }
 }
 

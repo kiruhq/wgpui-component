@@ -270,7 +270,14 @@ impl Element for TextView {
                     }
 
                     state.update(cx, |state, _| {
-                        state.start_selection(event.position);
+                        if event.button == gpui::MouseButton::Left && event.click_count >= 3 {
+                            state.select_line_at(event.position);
+                        } else if event.button == gpui::MouseButton::Left && event.click_count == 2
+                        {
+                            state.select_word_at(event.position);
+                        } else {
+                            state.start_selection(event.position);
+                        }
                     });
                     cx.notify(parent_view_id);
                 }
@@ -334,8 +341,9 @@ mod tests {
     use super::TextView;
     use crate::text::TextViewState;
     use gpui::{
-        AppContext as _, Context, Entity, IntoElement, Modifiers, MouseButton, ParentElement as _,
-        Render, Styled as _, TestAppContext, VisualTestContext, Window, div, point, px,
+        AppContext as _, Context, Entity, IntoElement, Modifiers, MouseButton, MouseDownEvent,
+        MouseUpEvent, ParentElement as _, Render, Styled as _, TestAppContext, VisualTestContext,
+        Window, div, point, px,
     };
 
     struct TextViewTestRoot {
@@ -405,5 +413,58 @@ mod tests {
             selected_text.is_empty(),
             "unexpected selection: {selected_text:?}"
         );
+    }
+
+    #[gpui::test]
+    fn triple_click_selects_the_clicked_text_line(cx: &mut TestAppContext) {
+        cx.update(crate::init);
+        let wrapped_line = "first logical line wraps across the narrow text view";
+        let text = format!("{wrapped_line}\n\nsecond line");
+        let (view, cx) = cx.add_window_view(|_, cx| TextViewTestRoot::new(text.as_str(), cx));
+        let cx: &mut VisualTestContext = cx;
+        let position = point(px(20.), px(12.));
+
+        cx.simulate_event(MouseDownEvent {
+            position,
+            button: MouseButton::Left,
+            modifiers: Modifiers::default(),
+            click_count: 3,
+            first_mouse: false,
+        });
+        cx.simulate_event(MouseUpEvent {
+            position,
+            button: MouseButton::Left,
+            modifiers: Modifiers::default(),
+            click_count: 3,
+        });
+
+        let selected_text = view.read_with(cx, |root, cx| root.text_view.read(cx).selected_text());
+        assert_eq!(selected_text, wrapped_line);
+    }
+
+    #[gpui::test]
+    fn double_click_selects_the_clicked_word(cx: &mut TestAppContext) {
+        cx.update(crate::init);
+        let (view, cx) =
+            cx.add_window_view(|_, cx| TextViewTestRoot::new("alpha bravo charlie", cx));
+        let cx: &mut VisualTestContext = cx;
+        let position = point(px(60.), px(12.));
+
+        cx.simulate_event(MouseDownEvent {
+            position,
+            button: MouseButton::Left,
+            modifiers: Modifiers::default(),
+            click_count: 2,
+            first_mouse: false,
+        });
+        cx.simulate_event(MouseUpEvent {
+            position,
+            button: MouseButton::Left,
+            modifiers: Modifiers::default(),
+            click_count: 2,
+        });
+
+        let selected_text = view.read_with(cx, |root, cx| root.text_view.read(cx).selected_text());
+        assert_eq!(selected_text, "bravo");
     }
 }

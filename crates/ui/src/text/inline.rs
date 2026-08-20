@@ -14,6 +14,48 @@ use gpui::{
 
 use crate::{ActiveTheme, global_state::GlobalState, input::Selection, text::node::LinkMark};
 
+fn is_word_char(c: char) -> bool {
+    c == '_'
+        || c.is_ascii_alphanumeric()
+        || matches!(c, '\u{00C0}'..='\u{024F}' | '\u{0400}'..='\u{04FF}' | '\u{1E00}'..='\u{1EFF}' | '\u{0300}'..='\u{036F}')
+}
+
+fn word_range_at_offset(text: &str, offset: usize) -> Option<Range<usize>> {
+    let offset = offset.min(text.len());
+    let offset = if text.is_char_boundary(offset) {
+        offset
+    } else {
+        (0..offset)
+            .rev()
+            .find(|&index| text.is_char_boundary(index))?
+    };
+    let ch = text[offset..].chars().next()?;
+    let connects = |other: char| {
+        (is_word_char(ch) && is_word_char(other))
+            || (ch.is_whitespace()
+                && ch != '\n'
+                && ch != '\r'
+                && other.is_whitespace()
+                && other != '\n'
+                && other != '\r')
+    };
+    let mut start = offset;
+    let mut end = offset + ch.len_utf8();
+    for previous in text[..start].chars().rev().take(128) {
+        if !connects(previous) {
+            break;
+        }
+        start -= previous.len_utf8();
+    }
+    for next in text[end..].chars().take(128) {
+        if !connects(next) {
+            break;
+        }
+        end += next.len_utf8();
+    }
+    Some(start..end)
+}
+
 /// A inline element used to render a inline text and support selectable.
 ///
 /// All text in TextView (including the CodeBlock) used this for text rendering.
@@ -102,6 +144,49 @@ impl Inline {
 
         let text_view_state = text_view_state.read(cx);
         let is_selectable = text_view_state.is_selectable();
+        if let Some(position) = text_view_state.word_selection_position() {
+            let line_height = window.line_height();
+            let first_position = text_layout.position_for_index(0);
+            let last_position = self
+                .text
+                .char_indices()
+                .next_back()
+                .and_then(|(offset, _)| text_layout.position_for_index(offset));
+            let contains_click = first_position
+                .zip(last_position)
+                .is_some_and(|(first, last)| {
+                    position.y >= first.y && position.y < last.y + line_height
+                });
+            let selection = contains_click
+                .then(|| {
+                    text_layout
+                        .index_for_position(position)
+                        .unwrap_or_else(|offset| offset)
+                })
+                .and_then(|offset| word_range_at_offset(&self.text, offset))
+                .map(Into::into);
+            return (is_selectable, true, selection);
+        }
+        if let Some(position) = text_view_state.line_selection_position() {
+            let line_height = window.line_height();
+            let first_position = text_layout.position_for_index(0);
+            let last_position = self
+                .text
+                .char_indices()
+                .next_back()
+                .and_then(|(offset, _)| text_layout.position_for_index(offset));
+            let contains_clicked_line =
+                first_position
+                    .zip(last_position)
+                    .is_some_and(|(first, last)| {
+                        position.y >= first.y && position.y < last.y + line_height
+                    });
+            return (
+                is_selectable,
+                true,
+                contains_clicked_line.then(|| (0..self.text.len()).into()),
+            );
+        }
         if !text_view_state.has_selection() {
             return (is_selectable, false, None);
         }
